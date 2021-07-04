@@ -1,3 +1,13 @@
+/*
+ *
+ * This is the Seagull Game Engine main file.
+ * Game loop information and Initialization configurations can be found here.
+ *
+ */
+
+#include "seagull.h"
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -7,22 +17,30 @@
 #define GLFW_INCLUDE_NONE
 #define GLEW_STATIC
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include "shaders.h"
-#include "errormsg.h"
-
 #define WINDOW_NAME "Seagull"
 
 
-GLFWwindow* window;
-int CurrentWidth = 640;
-int CurrentHeight = 480;
+/*
+ * @Brief: Processes user keypress
+ * This function takes user input and assigns actions to the keypresses.
+ *
+ * NOTE: In future, make it so that this can be easily modified.
+ */
+void processKeypress(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    if (action == GLFW_PRESS) {
+        switch (key) {
+            // Temporary case.
+            case GLFW_KEY_T:
+                ActiveIndexBuffer = (ActiveIndexBuffer == 1 ? 0 : 1);
+                /* GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID[ActiveIndexBuffer])); */
+                break;
 
-double previousTime;
-unsigned int FrameCount = 0;
-
+            default:
+                break;
+        }
+    }
+}
 
 /*
  * Calculates FPS of engine
@@ -56,11 +74,20 @@ static void timerFunction(GLFWwindow *window, double prevTime)
  * When window is resized, dimensions of OpenGL Viewport is set to the new
  * dimensions of the window.
  */
-static void windowResizeCallbackFunc(GLFWwindow *window, int width, int height)
+void windowResizeCallbackFunc(GLFWwindow *window, int width, int height)
 {
     CurrentWidth = width;
     CurrentHeight = height;
     GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
+    ProjectionMatrix = 
+        CreateProjectionMatrix(
+                60,
+                (float)CurrentWidth/CurrentHeight,
+                1.0f,
+                100.0f);
+    GLCall(glUseProgram(ShadersIds[0]));
+    GLCall(glUniformMatrix4fv(ProjectionMatrixUniformLocation, 1, GL_FALSE, ProjectionMatrix.m));
+    GLCall(glUseProgram(0));
 }
 
 /*
@@ -68,11 +95,21 @@ static void windowResizeCallbackFunc(GLFWwindow *window, int width, int height)
  *
  * If an error occurs, it will be printed with the number and description.
  */
-static void GlfwErrorCallback(int error, const char *description)
+void GlfwErrorCallback(int error, const char *description)
 {
     fprintf(stderr, "GLFW ERROR: [%d] %s\n", error, description);
 }
 
+/*
+ * Window Close Callback Func
+ *
+ * Destroys Shaders and Vertex Buffer Objects when window is closed
+ */
+void CleanUp(GLFWwindow *window)
+{
+    DestroyShaders(ShadersIds, 3);
+    DestroyVBO();
+}
 
 /*
  * Creates a GLFW window ready for OpenGL
@@ -104,6 +141,7 @@ void InitWindow(void)
     glfwSetWindowSizeCallback(window, windowResizeCallbackFunc);
     glfwSetErrorCallback(GlfwErrorCallback);
     glfwSetWindowCloseCallback(window, CleanUp);
+    glfwSetKeyCallback(window, processKeypress);
 
     previousTime = glfwGetTime();
 }
@@ -124,45 +162,95 @@ void Initialize(void)
         exit(EXIT_FAILURE);
     }
 
-    /*
-     * NOTE: Shaders should be able to be dynamically loaded.
-     * i.e. shader locations should not be hardcoded in.
-     * Possible solution is make a standard directory to search for (shaders) and
-     * locate all *.glsl files, and determine what they are. Once determined load
-     * into variables/array
-     */
-    GLchar *vershdr;
-    vershdr = read_shader("../../seagull/tmp_shaders/vertexShader.glsl");
-    fprintf(stdout, "READ VERTEX SHADER:\n%s\n", vershdr);
+    GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
 
-    GLchar *fragshdr;
-    fragshdr = read_shader("../../seagull/tmp_shaders/fragmentShader.glsl");
-    fprintf(stdout, "READ FRAGMENT SHADER:\n%s\n", fragshdr);
-
-
-    CreateShaders(vershdr, fragshdr);
-    CreateVBO();
+    /* GLCall(glEnable(GL_DEBUG_OUTPUT)); */
 
     GLCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+    GLCall(glEnable(GL_DEPTH_TEST));
+    GLCall(glDepthFunc(GL_LESS));
+
+    // Useful for 3d objects
+    /* GLCall(glEnable(GL_CULL_FACE)); */
+    /* GLCall(glCullFace(GL_BACK)); */
+    /* GLCall(glFrontFace(GL_CCW)); */
+
+    ModelMatrix = IDENTITY_MATRIX;
+    ProjectionMatrix = IDENTITY_MATRIX;
+    ViewMatrix = IDENTITY_MATRIX;
+    // Moves the ViewMatrix to Z -2
+    TranslateMatrix(&ViewMatrix, 0, 0, -2);
+
+    GLCall(ShadersIds[0] = glCreateProgram());
+    ShadersIds[1] = LoadShader("../../seagull/tmp_shaders/vertexShader.glsl", GL_VERTEX_SHADER);
+    ShadersIds[2] = LoadShader("../../seagull/tmp_shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
+    GLCall(glAttachShader(ShadersIds[0], ShadersIds[1]));
+    GLCall(glAttachShader(ShadersIds[0], ShadersIds[2]));
+    GLCall(glLinkProgram(ShadersIds[0]));
+
+    GLCall(ModelMatrixUniformLocation = glGetUniformLocation(ShadersIds[0], "ModelMatrix"));
+    GLCall(ViewMatrixUniformLocation = glGetUniformLocation(ShadersIds[0], "ViewMatrix"));
+    GLCall(ProjectionMatrixUniformLocation = glGetUniformLocation(ShadersIds[0], "ProjectionMatrix"));
+
+    CreateVBO();
 }
 
 int main(void)
 {
 
     Initialize();
+
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        GLCall(glClear(GL_COLOR_BUFFER_BIT));
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         timerFunction(window, previousTime);
 
 
-        GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
+
+        float CurrentAngle;
+        clock_t Now = clock();
+        if (LastTime == 0)
+            LastTime = Now;
+
+        rotationAngle += 45.0f * (float)(Now - LastTime) / CLOCKS_PER_SEC;
+        CurrentAngle = DegreesToRadians(rotationAngle);
+        ModelMatrix = IDENTITY_MATRIX;
+        RotateAboutZ(&ModelMatrix, CurrentAngle);
+
+        // Use updated shaders
+        GLCall(glUseProgram(ShadersIds[0]));
 
 
+        // Update shaders' uniforms
+        GLCall(glUniformMatrix4fv(ModelMatrixUniformLocation, 1, GL_FALSE, ModelMatrix.m));
+        GLCall(glUniformMatrix4fv(ViewMatrixUniformLocation, 1, GL_FALSE, ViewMatrix.m));
 
 
+        // Use updated VertexArray
+        GLCall(glBindVertexArray(BufferIDs[0]));
+
+
+        if (ActiveIndexBuffer == 0) {
+            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID[ActiveIndexBuffer]));
+            GLCall(glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_BYTE, NULL));
+        }
+        else {
+            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID[ActiveIndexBuffer]));
+            GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, NULL));
+        }
+
+        /*
+         * Stop using VertexArray and shaders so they can be updated on next
+         * cycle
+         */
+        GLCall(glBindVertexArray(0));
+        GLCall(glUseProgram(0));
+
+
+        LastTime = Now;
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
         /* Poll for and process events */

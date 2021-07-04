@@ -2,3 +2,4 @@
 .DS_Store
 Build/*
 !Build/.gitignore
+seagull/src/__pycache__
