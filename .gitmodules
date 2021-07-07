@@ -4,3 +4,9 @@
 [submodule "seagull/vendor/glfw"]
     path = seagull/vendor/glfw
     url = https://github.com/glfw/glfw
+[submodule "seagull/vendor/cglm"]
+	path = seagull/vendor/cglm
+	url = https://github.com/recp/cglm.git
+[submodule "seagull/vendor/assimp"]
+	path = seagull/vendor/assimp
+	url = https://github.com/assimp/assimp.git
