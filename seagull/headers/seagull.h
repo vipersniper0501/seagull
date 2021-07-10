@@ -74,8 +74,6 @@ vector<Texture>textures = {
 // ---- vbo.h stuff ends ----
 
 
-// MeshData Mesh1;
-
 
 
 void Initialize(void);

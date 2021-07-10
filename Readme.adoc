@@ -1,3 +1,5 @@
 = Seagull
 
-Simple 2D OpenGL engine based in C
+Simple 2D OpenGL engine based in C++
+
+Goal is to be simple and easy to use engine for simple simulations.

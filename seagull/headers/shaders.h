@@ -163,9 +163,4 @@ class Shader
         }
 };
 
-char* read_shader(const char *path);
-GLuint LoadShader(const char *filename, GLenum shader_type);
-void CreateShaders(const GLchar *VertexShader, const GLchar *FragmentShader);
-void DestroyShaders(GLuint ShadersIds[], int size);
-
 #endif

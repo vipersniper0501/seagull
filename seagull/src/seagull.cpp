@@ -31,9 +31,7 @@ unsigned int FrameCount = 0;
 GLuint
     ProjectionMatrixUniformLocation,
     ViewMatrixUniformLocation,
-    ModelMatrixUniformLocation,
-    TransformMatrixUniformLocation,
-    ShadersIds[3];
+    ModelMatrixUniformLocation;
 
 glm::mat4 
     ProjectionMatrix,
@@ -101,17 +99,6 @@ void windowResizeCallbackFunc(GLFWwindow *window, int width, int height)
     CurrentWidth = width;
     CurrentHeight = height;
     GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
-    /* ProjectionMatrix =  */
-        /* CreateProjectionMatrix( */
-                /* 60, */
-                /* (float)CurrentWidth/CurrentHeight, */
-                /* 1.0f, */
-                /* 100.0f); */
-    // ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
-    /* GLCall(glUseProgram(ShadersIds[0])); */
-    // mainShader.setMat4("ProjectionMatrix", ProjectionMatrix);
-    // GLCall(glUniformMatrix4fv(ProjectionMatrixUniformLocation, 1, GL_FALSE, ProjectionMatrix[0]));
-    /* GLCall(glUseProgram(0)); */
 }
 
 /*
@@ -209,71 +196,13 @@ int main(void)
     Shader mainShader("../../seagull/tmp_shaders/vertexShader.glsl", "../../seagull/tmp_shaders/fragmentShader.glsl");
     mainShader.use();
 
-    // glm::mat4 ModelMatrix = glm::mat4(1.0f);
-    // glm::mat4 ProjectionMatrix = glm::mat4(1.0f);
     glm::mat4 ViewMatrix = glm::mat4(1.0f);
-    // glm_mat4_identity(ModelMatrix);
-    // glm_mat4_identity(ProjectionMatrix);
-    // glm_mat4_identity(ViewMatrix);
-    // Moves the ViewMatrix to Z -2
-    // glm_translate_z(ViewMatrix, -3);
+    // Moves the ViewMatrix to Z -3
     ViewMatrix = glm::translate(ViewMatrix, glm::vec3(0.0f, 0.0f, -3.0f));
 
 
-    // GLCall(ShadersIds[0] = glCreateProgram());
-    // [> ShadersIds[1] = LoadShader("../../seagull/tmp_shaders/vertexShader.glsl", GL_VERTEX_SHADER); <]
-    // ShadersIds[1] = LoadShader("../../seagull/tmp_shaders/vertexShader2.glsl", GL_VERTEX_SHADER);
-    // ShadersIds[2] = LoadShader("../../seagull/tmp_shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
-    // GLCall(glAttachShader(ShadersIds[0], ShadersIds[1]));
-    // GLCall(glAttachShader(ShadersIds[0], ShadersIds[2]));
-    // GLCall(glLinkProgram(ShadersIds[0]));
-    // GLCall(glUseProgram(ShadersIds[0]));
-
-    // GLCall(ModelMatrixUniformLocation = glGetUniformLocation(mainShader.ID, "ModelMatrix"));
-    // GLCall(ViewMatrixUniformLocation = glGetUniformLocation(mainShader.ID, "ViewMatrix"));
-    // GLCall(ProjectionMatrixUniformLocation = glGetUniformLocation(mainShader.ID, "ProjectionMatrix"));
-
-    // GLCall(TransformMatrixUniformLocation = glGetUniformLocation(mainShader.ID, "transform"));
-
     glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
     mainShader.setMat4("ProjectionMatrix", ProjectionMatrix);
-
-
-    // Mesh1.vertices_size = sizeof(Vertices)/sizeof(Vertices[0]);
-    // Mesh1.indices_size = sizeof(Indices)/sizeof(Indices[0]);
-    // Mesh1.indices = Indices;
-    // for (int j = 0; j < Mesh1.indices_size; j++) {
-        // fprintf(stdout, "Index [%d]: %d\n", j, Mesh1.indices[j]);
-    // }
-
-    // Vertex vertex;
-    // vec3 vectorBuffer;
-    // vec3 normalBuffervec;
-    // vec2 texcoordsBuffervec;
-    // MeshData tmp;
-
-    // for (int i = 0; i < Mesh1.vertices_size; i++) {
-        // vectorBuffer[0] = Vertices[i].Position[0];
-        // vectorBuffer[1] = Vertices[i].Position[1];
-        // vectorBuffer[2] = Vertices[i].Position[2];
-        // normalBuffervec[0] = 0;
-        // normalBuffervec[1] = 0;
-        // normalBuffervec[2] = 0;
-        // texcoordsBuffervec[0] = 0;
-        // texcoordsBuffervec[1] = 0;
-        // glm_vec3_copy(vectorBuffer, vertex.Position);
-        // glm_vec4(vertex.Position, 1.0f, vertex.Position);
-        // glm_vec3_copy(normalBuffervec, vertex.Normal);
-        // glm_vec2_copy(texcoordsBuffervec, vertex.TexCoords);
-        // tmp.vertices = realloc(Mesh1.vertices, sizeof(&Mesh1.vertices) + sizeof(Vertex));
-        // Mesh1.vertices = tmp.vertices;
-        // Mesh1.vertices[i] = vertex;
-    // }
-    // [> Everything has successfully been transferred to the struct!! :D <]
-
-    // for (int i = 0; i < Mesh1.vertices_size; i++) {
-        // fprintf(stdout, "Vertex [%d]: { %f, %f, %f, %f}\n", i, Mesh1.vertices[i].Position[0], Mesh1.vertices[i].Position[1], Mesh1.vertices[i].Position[2], Mesh1.vertices[i].Position[3]);
-    // }
 
 
     Mesh crossMesh(Vertices, Indices, textures);
@@ -288,7 +217,6 @@ int main(void)
         timerFunction(window, previousTime);
 
         // activate shader
-        // GLCall(glUseProgram(ShadersIds[0]));
         mainShader.use();
 
         glm::mat4 ModelMatrix = glm::mat4(1.0f);
