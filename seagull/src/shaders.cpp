@@ -7,6 +7,13 @@
 
 #include "Utils.h"
 
+GLint shaderCompileStatus;
+
+GLuint
+  VertexShaderId,
+  FragmentShaderId,
+  ProgramId;
+
 GLuint LoadShader(const char *filename, GLenum shader_type)
 {
     GLuint shader_id = 0;
@@ -31,6 +38,13 @@ GLuint LoadShader(const char *filename, GLenum shader_type)
                 if (0 != shader_id) {
                     GLCall(glShaderSource(shader_id, 1, &glsl_source, NULL));
                     GLCall(glCompileShader(shader_id));
+                    GLCall(glGetShaderiv(shader_id, GL_COMPILE_STATUS, &shaderCompileStatus));
+                    if (shaderCompileStatus != GL_TRUE) {
+                        GLsizei log_length = 0;
+                        GLchar message[1024];
+                        GLCall(glGetShaderInfoLog(shader_id, 1024, &log_length, message));
+                        fprintf(stderr, "SHADER ERROR: \nFile: %s\nProblem: %s\n", filename, message);
+                    }
                 } else
                     fprintf(stderr, "ERROR: Could not create a shader.\n");
             } else
@@ -52,28 +66,28 @@ GLuint LoadShader(const char *filename, GLenum shader_type)
 /*
  * Read shader data from a *.glsl file and return the shader information
  */
-char* read_shader(const char *path)
-{
-    FILE *fptr;
-    if ((fptr = fopen(path, "r")) == NULL) {
-        fprintf(stderr, "SHADER ERROR: %s could not be found!", path);
-        exit(EXIT_FAILURE);
-    }
+// char* read_shader(const char *path)
+// {
+    // FILE *fptr;
+    // if ((fptr = fopen(path, "r")) == NULL) {
+        // fprintf(stderr, "SHADER ERROR: %s could not be found!", path);
+        // exit(EXIT_FAILURE);
+    // }
 
-    fseek(fptr, 0, SEEK_END);
-    long fsize = ftell(fptr);
-    fseek(fptr, 0, SEEK_SET);
-    char *buffer = malloc(fsize + 1);
-    fread(buffer, fsize, 1, fptr);
-    fclose(fptr);
-    buffer[fsize] = 0;
+    // fseek(fptr, 0, SEEK_END);
+    // long fsize = ftell(fptr);
+    // fseek(fptr, 0, SEEK_SET);
+    // char *buffer = malloc(fsize + 1);
+    // fread(buffer, fsize, 1, fptr);
+    // fclose(fptr);
+    // buffer[fsize] = 0;
 
-    char *result = "";
-    result = malloc(512);
-    memcpy(result, buffer, 512);
+    // char *result = "";
+    // result = malloc(512);
+    // memcpy(result, buffer, 512);
 
-    return result;
-}
+    // return result;
+// }
 
 /*
 void CreateShaders(const GLchar *VertexShader, const GLchar *FragmentShader)
