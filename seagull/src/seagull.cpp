@@ -7,12 +7,15 @@
 
 #include "seagull.h"
 #include "glm/gtc/type_ptr.hpp"
+#include "filesystem.h"
 
 
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <iostream>
+#include <filesystem>
 
 // #include <cglm/cglm.h>
 #define GL_SILENCE_DEPRECATION
@@ -160,7 +163,7 @@ void InitWindow(void)
 }
 
 /*
- * Initializes a GLFW Window and GLEW along with some other settings.
+ * Initializes a GLFW Window and GLEW along with some basic OpenGL settings.
  */
 void Initialize(void)
 {
@@ -177,14 +180,16 @@ void Initialize(void)
 
     GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
 
+    stbi_set_flip_vertically_on_load(true);
+
     GLCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
     GLCall(glEnable(GL_DEPTH_TEST));
     GLCall(glDepthFunc(GL_LESS));
 
     // Useful for 3d objects
-    /* GLCall(glEnable(GL_CULL_FACE)); */
-    /* GLCall(glCullFace(GL_BACK)); */
-    /* GLCall(glFrontFace(GL_CCW)); */
+    // GLCall(glEnable(GL_CULL_FACE));
+    // GLCall(glCullFace(GL_BACK));
+    // GLCall(glFrontFace(GL_CCW));
 
     fix_render_on_mac(window);
 }
@@ -205,7 +210,8 @@ int main(void)
     mainShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
 
-    Mesh crossMesh(Vertices, Indices, textures);
+    // Mesh crossMesh(Vertices, Indices, textures);
+    Model backpackModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"));
 
 
 
@@ -219,29 +225,25 @@ int main(void)
         // activate shader
         mainShader.use();
 
-        glm::mat4 ModelMatrix = glm::mat4(1.0f);
-        ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
-
+        // Set/Update ProjectionMatrix
         glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
         mainShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+
+        // Transform Mesh around center
+        glm::mat4 ModelMatrix = glm::mat4(1.0f);
+        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.0f, 0.0f, -3.0f)); // translate it down so it's at the center of the scene
+        ModelMatrix = glm::scale(ModelMatrix, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(45.0f), glm::vec3(0.0, 1.0, 0.0));
+
 
 
         // Update shaders' uniforms
         mainShader.setMat4("ModelMatrix", ModelMatrix);
         mainShader.setMat4("ViewMatrix", ViewMatrix);
 
-
         // Draw Mesh
-        crossMesh.Draw(mainShader);
-
-        /* if (ActiveIndexBuffer == 0) { */
-            /* GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID[ActiveIndexBuffer])); */
-            /* GLCall(glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_BYTE, NULL)); */
-        /* } */
-        /* else { */
-            /* GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID[ActiveIndexBuffer])); */
-            /* GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, NULL)); */
-        /* } */
+        // crossMesh.Draw(mainShader);
+        backpackModel.Draw(mainShader);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -250,9 +252,8 @@ int main(void)
     }
 
     mainShader.Destroy();
-    crossMesh.Destroy();
+    // crossMesh.Destroy();
 
     glfwTerminate();
-    std::cout << "Engine Stopped Successfully!" << std::endl;
     return 0;
 }
