@@ -22,7 +22,7 @@
 #define GLFW_INCLUDE_NONE
 #define GLEW_STATIC
 
-#define WINDOW_NAME "Seagull"
+#define WINDOW_NAME "Seagull\0"
 
 GLFWwindow *window;
 int CurrentWidth = 640;
