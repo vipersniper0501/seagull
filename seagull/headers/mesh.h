@@ -23,8 +23,8 @@ struct Vertex {
 
 struct Texture{
     unsigned int id;
-    char *type;
-    char *path;
+    string type;
+    string path;
 };
 
 class Mesh {
@@ -33,6 +33,7 @@ class Mesh {
         vector<Vertex> vertices;
         vector<unsigned int> indices;
         vector<Texture> textures;
+        unsigned int VAO;
         
         Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
         {
@@ -47,6 +48,7 @@ class Mesh {
         {
             unsigned int diffuseNr = 1;
             unsigned int specularNr = 1;
+            unsigned int normalNr = 1;
             for (unsigned int i = 0; i < textures.size(); i++)
             {
                 GLCall(glActiveTexture(GL_TEXTURE0 + i)); // activate proper texture unit before binding
@@ -57,16 +59,19 @@ class Mesh {
                     number = std::to_string(diffuseNr++);
                 else if (name == "texture_specular")
                     number = std::to_string(specularNr++);
+                else if(name == "texture_normal")
+                    number = std::to_string(normalNr++);
 
-                shader.setFloat(("material." + name + number).c_str(), i);
+                glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
                 GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].id));
             }
-            GLCall(glActiveTexture(GL_TEXTURE0));
 
             // Draw Mesh
             GLCall(glBindVertexArray(VAO));
             GLCall(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0));
             GLCall(glBindVertexArray(0));
+
+            GLCall(glActiveTexture(GL_TEXTURE0));
         }
 
         void Destroy()
@@ -82,7 +87,7 @@ class Mesh {
         }
     private:
         // render data
-        unsigned int VAO, VBO, EBO;
+        unsigned int VBO, EBO;
         void SetupMesh()
         {
             GLCall(glGenVertexArrays(1, &VAO));
@@ -115,7 +120,7 @@ class Mesh {
             GLCall(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color)));
 
             GLCall(glBindVertexArray(0));
-        };
+        }
 };
 
 
