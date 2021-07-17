@@ -12,6 +12,26 @@
 #include <sstream>
 #include <iostream>
 
+
+/*
+ * Notes:
+ *
+ * VERTEX SHADER:
+ * The vertex shader is what controls the locaions and transformations of a Mesh/Model/whatever is on the screen
+ * The shader takes the information that gets loaded in from a model/mesh and
+ * sends it straight to the fragment shader or keeps it and set the position of
+ * the vertices
+ * Think of it as the second layer of the application whereas without it, all
+ * that would be there on the screen is a mesh that does nothing. This layer
+ * makes it so that it takes that static mesh and does something with it, hiding
+ * the static bottom layer.
+ *
+ * FRAGMENT SHADER:
+ * The fragment shader is similar to the vertex shader except that it controls
+ * the look and colors of the mesh.You can use this to setup procedural textures
+ * or colors.
+ *
+ */
 class Shader 
 {
     public:
@@ -58,10 +78,10 @@ class Shader
             GLCall(glGetShaderiv(vertex, GL_COMPILE_STATUS, &shaderCompileStatus));
             if (!shaderCompileStatus)
             {
-                GLchar message[1024];
-                GLCall(glGetShaderInfoLog(vertex, 1024, NULL, message));
-                std::cout << "VERTEX SHADER ERROR:\nFile: " << vertexPath << "\nProblem: "
-                    << message << std::endl;
+                GLchar vmessage[1024];
+                GLCall(glGetShaderInfoLog(vertex, 1024, NULL, vmessage));
+                std::cout << "\nVERTEX SHADER ERROR:\nFile: " << vertexPath << "\nProblem: "
+                    << vmessage << std::endl;
             }
             // compile fragment shader
             GLCall(fragment = glCreateShader(GL_FRAGMENT_SHADER));
@@ -70,10 +90,9 @@ class Shader
             GLCall(glGetShaderiv(fragment, GL_COMPILE_STATUS, &shaderCompileStatus));
             if (!shaderCompileStatus)
             {
-                GLchar message[1024];
-                GLCall(glGetShaderInfoLog(vertex, 1024, NULL, message));
-                std::cout << "FRAGMENT SHADER ERROR:\nFile: " << fragmentPath << "\nProblem: "
-                    << message << std::endl;
+                GLchar fmessage[1024];
+                GLCall(glGetShaderInfoLog(fragment, 1024, NULL, fmessage));
+                std::cout << "\nFRAGMENT SHADER ERROR:\nFile: " << fragmentPath << "\nProblem: " << fmessage << std::endl;
             }
 
             // Create shader program
@@ -88,7 +107,7 @@ class Shader
             {
                 GLchar message[1024];
                 GLCall(glGetProgramInfoLog(ID, 1024, NULL, message));
-                std::cout << "LINKING SHADER ERROR: " << message << std::endl;
+                std::cout << "\nLINKING SHADER ERROR: " << message << std::endl;
             }
 
             // Delete shaders as they have been linked to program and are no 
