@@ -3,3 +3,28 @@
 Simple 2D OpenGL engine based in C++
 
 Goal is to be simple and easy to use engine for simple simulations.
+
+== How to Build
+
+=== Build on MacOS
+
+==== CLI
+Ensure xcode build tools are installed already (needed for make, g++, etc).
+Use homebrew for installing `cmake`.
+
+```
+brew install cmake
+mkdir Build
+cd Build
+cmake ..
+make
+```
+
+==== Xcode
+```
+mkdir xcode
+cd xcode
+cmake -G Xcode ..
+```
+
+Open the resulting xcode project file.
