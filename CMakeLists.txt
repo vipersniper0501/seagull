@@ -4,7 +4,7 @@ project (seagull VERSION 0.0.1)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-g -Wall -Wformat-security -Wstrict-overflow -Wshift-overflow)

@@ -3,3 +3,4 @@
 Build/*
 !Build/.gitignore
 seagull/src/__pycache__
+xcode/*

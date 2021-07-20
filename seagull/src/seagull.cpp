@@ -41,8 +41,49 @@ glm::mat4
     ViewMatrix,
     ModelMatrix;
 
-float rotationAngle = 0;
-clock_t LastTime = 0;
+glm::vec3 lightPos = glm::vec3(-3.0f, 2.0f, -5.0f);
+
+
+
+// Cube Vertices
+vector<Vertex> Vertices = {
+    // front
+    {{-0.5, -0.5,  0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    {{ 0.5, -0.5,  0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    {{ 0.5,  0.5,  0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    {{-0.5,  0.5,  0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    // back
+    {{-0.5, -0.5, -0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    {{ 0.5, -0.5, -0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    {{ 0.5,  0.5, -0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+    {{-0.5,  0.5, -0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}
+};
+
+
+vector<unsigned int> Indices = {
+    // front
+    0, 1, 2,
+    2, 3, 0,
+    // right
+    1, 5, 6,
+    6, 2, 1,
+    // back
+    7, 6, 5,
+    5, 4, 7,
+    // left
+    4, 0, 3,
+    3, 7, 4,
+    // bottom
+    4, 5, 1,
+    1, 0, 4,
+    // top
+    3, 2, 6,
+    6, 7, 3
+};
+
+
+
+
 /*
  * @Brief: Processes user keypress
  * This function takes user input and assigns actions to the keypresses.
@@ -78,7 +119,7 @@ static void timerFunction(GLFWwindow *window, double prevTime)
 
         sprintf(
             TempString,
-            "%s: %d Frames Per Second @ %d x %d",
+            "%s: %u Frames Per Second @ %d x %d",
             WINDOW_NAME,
             FrameCount,
             CurrentWidth,
@@ -186,11 +227,6 @@ void Initialize(void)
     GLCall(glEnable(GL_DEPTH_TEST));
     GLCall(glDepthFunc(GL_LESS));
 
-    // Useful for 3d objects
-    // GLCall(glEnable(GL_CULL_FACE));
-    // GLCall(glCullFace(GL_BACK));
-    // GLCall(glFrontFace(GL_CCW));
-
     fix_render_on_mac(window);
 }
 
@@ -198,21 +234,30 @@ int main(void)
 {
 
     Initialize();
-    Shader mainShader("../../seagull/tmp_shaders/vertexShader.glsl", "../../seagull/tmp_shaders/fragmentShader.glsl");
-    mainShader.use();
 
     glm::mat4 ViewMatrix = glm::mat4(1.0f);
-    // Moves the ViewMatrix to Z -3
+    /*
+     * This view matrix pushes everything back by 3 units before first draw,
+     * works the same as pushing the camera back by 3 units.
+     */ 
     ViewMatrix = glm::translate(ViewMatrix, glm::vec3(0.0f, 0.0f, -3.0f));
-
-
     glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
-    mainShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
 
-    // Mesh crossMesh(Vertices, Indices, textures);
+    Shader backpackShader("../../seagull/tmp_shaders/backpackVertex.glsl", "../../seagull/tmp_shaders/backpackFragment.glsl");
     Model backpackModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"));
+    backpackShader.use();
+    backpackShader.setMat4("ViewMatrix", ViewMatrix);
+    backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+    backpackShader.setInt("material.diffuse", 0);
+    backpackShader.setInt("material.specular", 1);
 
+
+    Shader lightCubeShader("../../seagull/tmp_shaders/lightCubeVertex.glsl", "../../seagull/tmp_shaders/lightCubeFragment.glsl");
+    Mesh cubeMesh(Vertices, Indices, textures);
+    lightCubeShader.use();
+    lightCubeShader.setMat4("ViewMatrix", ViewMatrix);
+    lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
 
     /* Loop until the user closes the window */
@@ -223,27 +268,49 @@ int main(void)
         timerFunction(window, previousTime);
 
         // activate shader
-        mainShader.use();
+        backpackShader.use();
 
         // Set/Update ProjectionMatrix
         glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
-        mainShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
         // Transform Mesh around center
         glm::mat4 ModelMatrix = glm::mat4(1.0f);
-        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.0f, 0.0f, -3.0f)); // translate it down so it's at the center of the scene
+        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.0f, 0.0f, -9.0f)); // translate it down so it's at the center of the scene
         ModelMatrix = glm::scale(ModelMatrix, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(45.0f), glm::vec3(0.0, 1.0, 0.0));
+        ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(45.0f), glm::vec3(0.0, 0.1, 0.0));
 
 
 
         // Update shaders' uniforms
-        mainShader.setMat4("ModelMatrix", ModelMatrix);
-        mainShader.setMat4("ViewMatrix", ViewMatrix);
+        backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+        backpackShader.setMat4("ModelMatrix", ModelMatrix);
 
-        // Draw Mesh
-        // crossMesh.Draw(mainShader);
-        backpackModel.Draw(mainShader);
+
+        backpackShader.setFloat("material.shininess", 64.0f);
+        backpackShader.setVec3("light.position", lightPos);
+        // viewPos should be changed to camera.Position when camera is in use.
+        backpackShader.setVec3("viewPos", glm::vec3(0.0f, 0.0f, -3.0f)); 
+        backpackShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        backpackShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        backpackShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+        // Draw Backpack Mesh
+        backpackModel.Draw(backpackShader);
+
+
+
+
+        lightCubeShader.use();
+
+        ModelMatrix = glm::mat4(1.0f);
+        ModelMatrix = glm::translate(ModelMatrix, lightPos);
+        // ModelMatrix = glm::rotate(ModelMatrix, 0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+
+        lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+        lightCubeShader.setMat4("ModelMatrix", ModelMatrix);
+
+        // Draw LightCube Mesh
+        cubeMesh.Draw(lightCubeShader);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -251,8 +318,8 @@ int main(void)
         glfwPollEvents();
     }
 
-    mainShader.Destroy();
-    // crossMesh.Destroy();
+    backpackShader.Destroy();
+    lightCubeShader.Destroy();
 
     glfwTerminate();
     return 0;

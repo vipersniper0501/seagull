@@ -18,6 +18,8 @@ struct Vertex {
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;
+    glm::vec3 Tangent;
+    glm::vec3 Bitangent;
     glm::vec4 Color;
 };
 
@@ -44,6 +46,9 @@ class Mesh {
             SetupMesh();
         };
 
+        /*
+         *
+         */
         void Draw(Shader &shader)
         {
             unsigned int diffuseNr = 1;
@@ -62,7 +67,7 @@ class Mesh {
                 else if(name == "texture_normal")
                     number = std::to_string(normalNr++);
 
-                glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+                shader.setFloat(("material." + name + number).c_str(), i);
                 GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].id));
             }
 
@@ -74,6 +79,9 @@ class Mesh {
             GLCall(glActiveTexture(GL_TEXTURE0));
         }
 
+        /*
+         * Unbinds Buffers (sets them to the buffer location '0') and deletes them.
+         */
         void Destroy()
         {
             GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -88,6 +96,7 @@ class Mesh {
     private:
         // render data
         unsigned int VBO, EBO;
+
         void SetupMesh()
         {
             GLCall(glGenVertexArrays(1, &VAO));
@@ -117,27 +126,17 @@ class Mesh {
             GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords)));
 
             GLCall(glEnableVertexAttribArray(3));
-            GLCall(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color)));
+            GLCall(glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent)));
+
+            GLCall(glEnableVertexAttribArray(4));
+            GLCall(glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent)));
+
+            GLCall(glEnableVertexAttribArray(5));
+            GLCall(glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color)));
 
             GLCall(glBindVertexArray(0));
         }
 };
 
-
-
-// typedef struct {
-    // unsigned int id;
-    // unsigned int vertices_size;
-    // Vertex *vertices;
-    // unsigned int indices_size;
-    // unsigned int *indices;
-    // unsigned int textures_size;
-    // Texture *textures;
-// } MeshData;
-
-// GLuint *MeshIDs;
-
-// void SetupMesh(MeshData data);
-// void DrawMesh(MeshData data, GLuint MeshID);
 
 #endif
