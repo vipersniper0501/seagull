@@ -115,5 +115,6 @@ class UI
         }
 };
 
+float UI::lampLocation[3] = {0.0f};
 
 #endif

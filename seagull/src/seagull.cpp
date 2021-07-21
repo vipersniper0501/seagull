@@ -41,11 +41,9 @@ glm::mat4
     ViewMatrix,
     ModelMatrix;
 
-glm::vec3 lightPos = glm::vec3(-3.0f, 2.0f, -5.0f);
+glm::vec3 lightPos;// = glm::vec3(-3.0f, 2.0f, -5.0f);
 
 UI seagullUi;
-float UI::lampLocation[3] = {0.0f};
-// float UI::locations[3] = {0.0f};
 
 
 // Cube Vertices
@@ -274,7 +272,7 @@ int main(void)
         // Transform Mesh around center
         glm::mat4 ModelMatrix = glm::mat4(1.0f);
         ModelMatrix = glm::translate(ModelMatrix, glm::vec3( 0.0f, 0.0f, -9.0f));
-        ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(45.0f), glm::vec3(0.0, 0.1, 0.0));
+        // ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(45.0f), glm::vec3(0.0, 0.1, 0.0));
 
 
         // Update shaders' uniforms
@@ -304,7 +302,7 @@ int main(void)
 
         ModelMatrix = glm::mat4(1.0f);
         ModelMatrix = glm::translate(ModelMatrix, lightPos);
-        ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
         lightCubeShader.setMat4("ModelMatrix", ModelMatrix);
