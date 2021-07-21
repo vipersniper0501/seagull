@@ -43,6 +43,9 @@ glm::mat4
 
 glm::vec3 lightPos = glm::vec3(-3.0f, 2.0f, -5.0f);
 
+UI seagullUi;
+float UI::lampLocation[3] = {0.0f};
+// float UI::locations[3] = {0.0f};
 
 
 // Cube Vertices
@@ -81,6 +84,8 @@ vector<unsigned int> Indices = {
     6, 7, 3
 };
 
+vector<Texture>textures = {
+};
 
 
 
@@ -103,33 +108,6 @@ void processKeypress(GLFWwindow *window, int key, int scancode, int action, int 
             default:
                 break;
         }
-    }
-}
-
-/*
- * Calculates FPS of engine
- */
-static void timerFunction(GLFWwindow *window, double prevTime)
-{
-    double currentTime = glfwGetTime();
-    FrameCount++;
-    if (currentTime - prevTime >= 1.0) {
-        char *TempString = (char*)
-            malloc(512 + strlen(WINDOW_NAME));
-
-        sprintf(
-            TempString,
-            "%s: %u Frames Per Second @ %d x %d",
-            WINDOW_NAME,
-            FrameCount,
-            CurrentWidth,
-            CurrentHeight
-        );
-
-        glfwSetWindowTitle(window, TempString);
-        free(TempString);
-        FrameCount = 0;
-        previousTime = currentTime;
     }
 }
 
@@ -195,7 +173,13 @@ void InitWindow(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
-    fprintf(stdout, "INFO: OpenGL Version: %s\n", glGetString(GL_VERSION));
+    fprintf(stdout, "INFO: \n"
+                    "OpenGL Version: %s\n"
+                    "GLFW Version: %s\n"
+                    "Dear ImGui Version: %s\n"
+                    "Assimp: %u.%u.%u\n", 
+                    glGetString(GL_VERSION), glfwGetVersionString(), ImGui::GetVersion(),
+                    aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionPatch());
     glfwSetFramebufferSizeCallback(window, windowResizeCallbackFunc);
     glfwSetErrorCallback(GlfwErrorCallback);
     glfwSetWindowCloseCallback(window, CleanUp);
@@ -220,13 +204,7 @@ void Initialize(void)
         exit(EXIT_FAILURE);
     }
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 400");
-
-    ImGui::StyleColorsDark();
+    seagullUi.init(window);
 
     GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
 
@@ -276,14 +254,16 @@ int main(void)
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         // timerFunction(window, previousTime);
 
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        ShowSeagullUI();
+        seagullUi.NewFrame();
+        seagullUi.ShowMainMenuBar();
 
 
+        // std::cout << "LampLocation: " <<
+                     // "\nX: " << seagullUi.lampLocation[0] <<
+                     // "\nY: " << seagullUi.lampLocation[1] <<
+                     // "\nZ: " << seagullUi.lampLocation[2] << std::endl;
 
+        lightPos = glm::make_vec3(seagullUi.lampLocation);
 
         // activate shader
         backpackShader.use();
@@ -335,8 +315,7 @@ int main(void)
 
 
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        seagullUi.RenderUi();
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
         /* Poll for and process events */
@@ -345,6 +324,8 @@ int main(void)
 
     backpackShader.Destroy();
     lightCubeShader.Destroy();
+
+    seagullUi.Destroy();
 
     glfwTerminate();
     return 0;
