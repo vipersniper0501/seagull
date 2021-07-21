@@ -13,6 +13,7 @@
 #include "mesh.h"
 #include "model.h"
 #include "Utils.h"
+#include "SeagullUi.h"
 
 // ---- vbo.h stuff -----
 struct Vertexs{

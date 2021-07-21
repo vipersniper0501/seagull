@@ -17,9 +17,6 @@
 #include <iostream>
 #include <filesystem>
 
-#include <imgui.h>
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
 
 #define GL_SILENCE_DEPRECATION
 #define GLFW_INCLUDE_NONE
@@ -169,29 +166,6 @@ void CleanUp(GLFWwindow *window)
     /* DestroyVBO(); */
 }
 
-void ShowMainMenuBar()
-{
-    if(ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Debug Tools"))
-        {
-            
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMainMenuBar();
-    }
-}
-
-void ShowSeagullUI()
-{
-    ShowMainMenuBar();
-}
 
 /*
  * Creates a GLFW window ready for OpenGL
@@ -300,7 +274,7 @@ int main(void)
     {
         /* Render here */
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-        timerFunction(window, previousTime);
+        // timerFunction(window, previousTime);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
