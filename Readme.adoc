@@ -14,7 +14,6 @@ Use homebrew for installing `cmake`.
 
 ```
 brew install cmake
-mkdir Build
 cd Build
 cmake ..
 make
