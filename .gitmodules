@@ -10,3 +10,6 @@
 [submodule "seagull/vendor/glm"]
 	path = seagull/vendor/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "seagull/vendor/imgui"]
+	path = seagull/vendor/imgui
+	url = https://github.com/ocornut/imgui.git

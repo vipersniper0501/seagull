@@ -17,7 +17,10 @@
 #include <iostream>
 #include <filesystem>
 
-// #include <cglm/cglm.h>
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
 #define GL_SILENCE_DEPRECATION
 #define GLFW_INCLUDE_NONE
 #define GLEW_STATIC
@@ -25,8 +28,8 @@
 #define WINDOW_NAME "Seagull"
 
 GLFWwindow *window;
-int CurrentWidth = 640;
-int CurrentHeight = 480;
+int CurrentWidth = 960;
+int CurrentHeight = 540;
 
 double previousTime;
 unsigned int FrameCount = 0;
@@ -166,6 +169,30 @@ void CleanUp(GLFWwindow *window)
     /* DestroyVBO(); */
 }
 
+void ShowMainMenuBar()
+{
+    if(ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Debug Tools"))
+        {
+            
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+}
+
+void ShowSeagullUI()
+{
+    ShowMainMenuBar();
+}
+
 /*
  * Creates a GLFW window ready for OpenGL
  * along with configuring some settings
@@ -185,7 +212,7 @@ void InitWindow(void)
     #endif
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, WINDOW_NAME, NULL, NULL);
+    window = glfwCreateWindow(CurrentWidth, CurrentHeight, WINDOW_NAME, NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -218,6 +245,14 @@ void Initialize(void)
         fprintf(stdout, "GLEW ERROR: %s\n", glewGetErrorString(glewInitResult));
         exit(EXIT_FAILURE);
     }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 400");
+
+    ImGui::StyleColorsDark();
 
     GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
 
@@ -267,6 +302,15 @@ int main(void)
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
         timerFunction(window, previousTime);
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ShowSeagullUI();
+
+
+
+
         // activate shader
         backpackShader.use();
 
@@ -275,10 +319,8 @@ int main(void)
 
         // Transform Mesh around center
         glm::mat4 ModelMatrix = glm::mat4(1.0f);
-        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.0f, 0.0f, -9.0f)); // translate it down so it's at the center of the scene
-        ModelMatrix = glm::scale(ModelMatrix, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        ModelMatrix = glm::translate(ModelMatrix, glm::vec3( 0.0f, 0.0f, -9.0f));
         ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(45.0f), glm::vec3(0.0, 0.1, 0.0));
-
 
 
         // Update shaders' uniforms
@@ -286,13 +328,17 @@ int main(void)
         backpackShader.setMat4("ModelMatrix", ModelMatrix);
 
 
+        // Backpack Model's lighting settings
         backpackShader.setFloat("material.shininess", 64.0f);
-        backpackShader.setVec3("light.position", lightPos);
-        // viewPos should be changed to camera.Position when camera is in use.
-        backpackShader.setVec3("viewPos", glm::vec3(0.0f, 0.0f, -3.0f)); 
-        backpackShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        backpackShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        backpackShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        backpackShader.setVec3("viewPos", glm::vec3(0.0f, 0.0f, -3.0f)); // viewPos should be set to camera.Position when camera is in use.
+        backpackShader.setVec3("pointLight.position", lightPos);
+        backpackShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        backpackShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        backpackShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+        backpackShader.setFloat("pointLight.constant", 1.0f);
+        backpackShader.setFloat("pointLight.linear", 0.045f);
+        backpackShader.setFloat("pointLight.quadratic", 0.0075f);
 
         // Draw Backpack Mesh
         backpackModel.Draw(backpackShader);
@@ -304,7 +350,7 @@ int main(void)
 
         ModelMatrix = glm::mat4(1.0f);
         ModelMatrix = glm::translate(ModelMatrix, lightPos);
-        // ModelMatrix = glm::rotate(ModelMatrix, 0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+        ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
         lightCubeShader.setMat4("ModelMatrix", ModelMatrix);
@@ -312,6 +358,11 @@ int main(void)
         // Draw LightCube Mesh
         cubeMesh.Draw(lightCubeShader);
 
+
+
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
         /* Poll for and process events */

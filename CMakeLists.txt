@@ -46,14 +46,24 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/seagull/vendor/glew/include
     ${CMAKE_SOURCE_DIR}/seagull/vendor/glm
     ${CMAKE_SOURCE_DIR}/seagull/vendor/assimp/include/assimp
-    ${CMAKE_SOURCE_DIR}/seagull/vendor/stbimage)
+    ${CMAKE_SOURCE_DIR}/seagull/vendor/stbimage
+    ${CMAKE_SOURCE_DIR}/seagull/vendor/imgui)
 
 file(GLOB PROJECT_SOURCES "seagull/src/*.cpp")
 file(GLOB PROJECT_HEADERS "seagull/headers/*.h")
-file(GLOB PROJECT_PYTHON_SOURCES "seagull/src/*.py")
+
+file(GLOB VENDOR_IMGUI_S "seagull/vendor/imgui/*.cpp")
+file(GLOB VENDOR_IMGUI_H "seagull/vendor/imgui/*.h")
+
+set(VENDOR_IMGUI_OPENGL_GLFW
+    "seagull/vendor/imgui/backends/imgui_impl_glfw.h"
+    "seagull/vendor/imgui/backends/imgui_impl_glfw.cpp"
+    "seagull/vendor/imgui/backends/imgui_impl_opengl3.h"
+    "seagull/vendor/imgui/backends/imgui_impl_opengl3.cpp")
 
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS} 
+    ${VENDOR_IMGUI_S} ${VENDOR_IMGUI_H} ${VENDOR_IMGUI_OPENGL_GLFW})
 
 target_link_libraries(${PROJECT_NAME} glfw glew glm assimp)
 
