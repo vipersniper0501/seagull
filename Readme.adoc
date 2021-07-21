@@ -6,11 +6,7 @@ Goal is to be simple and easy to use engine for simple simulations.
 
 == How to Build
 
-=== Build on MacOS
-
-==== CLI
-Ensure xcode build tools are installed already (needed for make, g++, etc).
-Use homebrew for installing `cmake`.
+=== Build on Linux
 
 ```
 brew install cmake
@@ -19,7 +15,11 @@ cmake ..
 make
 ```
 
-==== Xcode
+=== Build on MacOS
+
+Ensure xcode build tools are installed already (needed for make, g++, etc).
+Use homebrew for installing `cmake`.
+
 ```
 mkdir xcode
 cd xcode
