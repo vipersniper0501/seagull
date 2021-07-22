@@ -14,12 +14,15 @@
 
 #include <assimp/version.h>
 
+#include "filesystem.h"
+
 class UI
 {
     public:
 
         static float lampLocation[3];
         static float lampIntensity;
+
 
         UI()
         {
@@ -35,6 +38,10 @@ class UI
             ImGui_ImplOpenGL3_Init("#version 400");
 
             ImGui::StyleColorsDark();
+            // ImGui::SetWindowFontScale(2.0f);
+            ImGuiIO &io = ImGui::GetIO();
+            // io.Fonts->AddFontFromFileTTF(FileSystem::getPath("seagull/resources/FiraCodeRegularNerdFontMono.ttf").c_str(), 14.0f);
+            io.Fonts->AddFontFromFileTTF(FileSystem::getPath("seagull/resources/Helvetica.ttf").c_str(), 14.0f);
         }
 
         void NewFrame()
