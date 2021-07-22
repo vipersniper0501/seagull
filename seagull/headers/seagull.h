@@ -14,6 +14,7 @@
 #include "shaders.h"
 #include "mesh.h"
 #include "model.h"
+#include "camera.h"
 #include "Utils.h"
 #include "Seagull_Ui.h"
 

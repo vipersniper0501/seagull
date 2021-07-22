@@ -19,6 +19,7 @@ class UI
     public:
 
         static float lampLocation[3];
+        static float lampIntensity;
 
         UI()
         {
@@ -62,7 +63,7 @@ class UI
             static bool live_stats = false;
             static bool lamp_config = false;
 
-            if (live_stats)         ShowLiveStats();
+            if (live_stats)         ShowLiveStats(&live_stats);
             if (lamp_config)        ShowLampConfiguration(&lamp_config);
 
             if(ImGui::BeginMainMenuBar())
@@ -86,7 +87,7 @@ class UI
 
     private:
 
-        static void ShowLiveStats()
+        static void ShowLiveStats(bool *p_open)
         {
             ImGui::Begin("Debug Stats");
             
@@ -110,11 +111,13 @@ class UI
             }
 
             ImGui::SliderFloat3("Lamp Location", lampLocation, -10.0f, 10.0f);
+            ImGui::DragFloat("Lamp Intensity", &lampIntensity, 0.005f, 0.0f, 1.0f);
 
             ImGui::End();
         }
 };
 
 float UI::lampLocation[3] = {0.0f};
+float UI::lampIntensity = 0.0f;
 
 #endif
