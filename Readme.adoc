@@ -6,6 +6,17 @@ Goal is to be simple and easy to use engine for simple simulations.
 
 == How to Build
 
+Before building, make sure to go into seagull/seagull/vendor/glew/auto and run
+`make` here first, otherwise you will get an error when building seagull saying
+that you are missing glew files.
+You should also comment out line 1137 of seagull/seagull/vendor/assimp/code/CMakeLists.txt
+as a work around for some warnings that can occur when building that will cause
+the build to stop.
+
+=== Build on WSL2
+
+
+
 === Build on Linux
 
 ```
