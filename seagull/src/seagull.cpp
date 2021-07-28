@@ -260,6 +260,8 @@ int main(void)
     glm::mat4 ViewMatrix = camera.GetViewMatrix();
     glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
 
+    // Could have a camera.update() function to loop through loaded shaders and update the uniforms with new values to reduce
+    // duplicated code.
 
     Shader backpackShader("../../seagull/tmp_shaders/backpackVertex.glsl", "../../seagull/tmp_shaders/backpackFragment.glsl");
     Model backpackModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"));
