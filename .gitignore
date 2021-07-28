@@ -1,6 +1,8 @@
-.cache/
+.cache/*
 .DS_Store
+.clangd/*
 Build/*
 !Build/.gitignore
 seagull/src/__pycache__
 xcode/*
+mingw/*
