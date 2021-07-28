@@ -39,6 +39,7 @@ set(GLFW_BUILD_TESTS OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/seagull/vendor/glfw)
 
 set(ASSIMP_BUILD_TESTS OFF)
+set(ASSIMP_WERROR OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/seagull/vendor/assimp)
 
 
