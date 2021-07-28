@@ -15,7 +15,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <iostream>
-#include <filesystem>
 
 
 #define GL_SILENCE_DEPRECATION
