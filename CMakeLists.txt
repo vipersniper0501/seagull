@@ -10,10 +10,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_compile_options(-g -Wall -Wformat-security)
 if (MSVC)
-    add_compile_options(/W4 /WX)
-elseif (APPLE)
+    add_compile_options(/Wall /bigobj)
+elseif (APPLE OR UNIX)
+    add_compile_options(-g -Wall -Wformat-security)
     add_compile_options(-fvisibility=default)
 endif()
 
@@ -22,14 +22,10 @@ IF(APPLE)
 ENDIF()
 
 # Add vendor libraries
-# set(BUILD_SHARED_LIBS OFF)
-
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 set(BUILD_UTILS OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/seagull/vendor/glew/build/cmake)
-# set(GLEW_DIR "${CMAKE_SOURCE_DIR}/seagull/vendor/glew")
-# add_definitions(-DGLEW_STATIC)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/seagull/vendor/glm)
 
@@ -40,6 +36,12 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/seagull/vendor/glfw)
 
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_WERROR OFF)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+if (MSVC)
+    set(ASSIMP_INSTALL_PDB ON)
+else()
+    set(ASSIMP_INSTALL_PDB OFF)
+endif()
 add_subdirectory(${CMAKE_SOURCE_DIR}/seagull/vendor/assimp)
 
 
@@ -87,6 +89,7 @@ elseif (UNIX)
         message(STATUS "Looking for OpenGL - NOT FOUND")
     endif()
 
+    # checks if the unix system is Windows Subsystem for Linux (WSL)
     if (CMAKE_SYSTEM MATCHES "microsoft-standard-WSL.$")
         set(OPENGL_gl_LIBRARY "/usr/lib/x86_64-linux-gnu/")
         set(OPENGL_glu_LIBRARY "/usr/lib/x86_64-linux-gnu/")
@@ -94,35 +97,34 @@ elseif (UNIX)
         message(STATUS "WSL: OpenGL Library Location: ${OPENGL_LIBRARIES}")
         message(STATUS "WSL: OpenGL Header Location: ${OPENGL_INCLUDE_DIR}")
         target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
-        # include_directories(${OPENGL_INCLUDE_DIR})
     elseif (OPENGL_OPENGL_FOUND)
         message(STATUS "Unix: Looking for OpenGL Library - FOUND")
         target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
-        # include_directories(${OPENGL_INCLUDE_DIR})
     else()
         message(STATUS "Unix: Looking for OpenGL Library - NOT FOUND")
     endif()
 elseif (WIN32)
     find_package(OpenGL REQUIRED)
-    # if (OPENGL_OPENGL_FOUND)
-    # message(STATUS "Win32: Looking for OpenGL Library - FOUND")
     target_link_libraries(${PROJECT_NAME} opengl32)
-    # if (MINGW)
-        # target_link_libraries(${PROJECT_NAME} stdc++fs)
-    # endif()
-        # include_directories(${OPENGL_INCLUDE_DIR})
-    # else()
-        # message(STATUS "Win32: Looking for OpenGL Library - NOT FOUND")
-    # endif()
 endif()
 
-if (WIN32)
+# Copy windows dll files to where the binary is located
+if (WIN32 AND MINGW)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/bin/glew32.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
                        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
                        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimp.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+elseif(WIN32 AND MSVC_IDE)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/$<CONFIGURATION>" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/$<CONFIGURATION>" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 endif()
 
-# Set output directory
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
+# Set output directory for binary
+# The visual studio IDE has its own place where it puts the executable. Would rather
+# not mess with something that is already working
+if (NOT MSVC_IDE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
+endif()
