@@ -12,7 +12,7 @@ private:
   typedef std::string (*Builder) (const std::string& path);
 
 public:
-  static std::string getPath(const std::string& path)
+  static std::string getPath(const std::string &path)
   {
     static std::string(*pathBuilder)(std::string const &) = getPathBuilder();
     return (*pathBuilder)(path);
