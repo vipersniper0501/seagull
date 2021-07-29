@@ -37,7 +37,7 @@ class Shader
     public:
         unsigned int ID;
         
-        Shader(const char *vertexPath, const char *fragmentPath)
+        Shader(std::string vertexPath, std::string fragmentPath)
         {
             std::string vertexCode;
             std::string fragmentCode;
