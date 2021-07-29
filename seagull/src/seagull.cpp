@@ -5,6 +5,10 @@
  *
  */
 
+
+
+
+
 #include "seagull.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "filesystem.h"
@@ -268,7 +272,7 @@ int main(void)
     // Could have a camera.update() function to loop through loaded shaders and update the uniforms with new values to reduce
     // duplicated code.
 
-    Shader backpackShader("../../seagull/tmp_shaders/backpackVertex.glsl", "../../seagull/tmp_shaders/backpackFragment.glsl");
+    Shader backpackShader(FileSystem::getPath("seagull/tmp_shaders/backpackVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/backpackFragment.glsl"));
     Model backpackModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"));
     backpackShader.use();
     backpackShader.setMat4("ViewMatrix", ViewMatrix);
@@ -277,7 +281,7 @@ int main(void)
     backpackShader.setInt("material.specular", 1);
 
 
-    Shader lightCubeShader("../../seagull/tmp_shaders/lightCubeVertex.glsl", "../../seagull/tmp_shaders/lightCubeFragment.glsl");
+    Shader lightCubeShader(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
     Mesh cubeMesh(Vertices, Indices, textures);
     lightCubeShader.use();
     lightCubeShader.setMat4("ViewMatrix", ViewMatrix);
