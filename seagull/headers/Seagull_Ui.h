@@ -69,14 +69,18 @@ class UI
 
             static bool live_stats = false;
             static bool lamp_config = false;
+            static bool exit_app = false;
 
             if (live_stats)         ShowLiveStats(&live_stats);
             if (lamp_config)        ShowLampConfiguration(&lamp_config);
+            if (exit_app)           ExitApp();
 
             if(ImGui::BeginMainMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
                 {
+
+                    if (ImGui::MenuItem("Exit", NULL, &exit_app)) {}
 
                     ImGui::EndMenu();
                 }
@@ -121,6 +125,11 @@ class UI
             ImGui::DragFloat("Lamp Intensity", &lampIntensity, 0.005f, 0.0f, 1.0f);
 
             ImGui::End();
+        }
+
+        static void ExitApp()
+        {
+            exit(0);
         }
 };
 
