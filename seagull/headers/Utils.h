@@ -10,13 +10,21 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#ifdef _MSC_VER
+#define VISUAL_STUDIO = true
+#endif
+
 
 static const double PI = 3.14159265358979323846;
 
 int SubStrFind(char *text, char *search);
 
 
+#ifdef _MSC_VER
+#define ASSERT(x) if(!(x)) __debugbreak();
+#else
 #define ASSERT(x) if(!x) exit(-1);
+#endif
 #define GLCall(x) GLClearError();\
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
