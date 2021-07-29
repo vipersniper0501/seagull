@@ -11,7 +11,7 @@ set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (MSVC)
-    add_compile_options(/Wall /bigobj)
+    add_compile_options(/W4 /bigobj)
 elseif (APPLE OR UNIX)
     add_compile_options(-g -Wall -Wformat-security)
     add_compile_options(-fvisibility=default)
