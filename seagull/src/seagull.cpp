@@ -244,6 +244,8 @@ void Initialize(void)
     GLCall(glEnable(GL_DEPTH_TEST));
     GLCall(glDepthFunc(GL_LESS));
 
+    GLCall(glEnable(GL_STENCIL_TEST));
+
     fix_render_on_mac(window);
 }
 
@@ -282,7 +284,7 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
