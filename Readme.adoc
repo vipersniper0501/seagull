@@ -15,7 +15,7 @@ the build to stop.
 
 === Build on Visual Studio 2019
 
-Before you begin to make sure that you have already downloaded the windows version
+Before you begin, make sure that you have already downloaded the windows version
 of cmake and it is on your $PATH. If you try and use the cmake that comes with WSL, you won't have the
 option to generate a Visual Studio solution.
 
@@ -29,7 +29,7 @@ Open up generated visual studio solution.
 
 === Build on WSL2 (Mingw32)
 
-Before you begin to make sure that you have already downloaded the windows version
+Before you begin, make sure that you have already downloaded the windows version
 of cmake and it is on your $PATH. If you try and use the cmake that comes with WSL, you won't have the
 option to generate a Visual Studio solution.
 
