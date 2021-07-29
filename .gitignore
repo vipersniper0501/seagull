@@ -6,3 +6,4 @@ Build/*
 seagull/src/__pycache__
 xcode/*
 mingw/*
+visualstudio/*
