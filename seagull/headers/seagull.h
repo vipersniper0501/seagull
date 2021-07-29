@@ -19,6 +19,24 @@
 #include "Seagull_Ui.h"
 
 
+
+// The virtual functions allow the functions to be overriden in another class.
+namespace Seagull
+{
+    class seagull
+    {
+        public:
+            seagull() {}
+            virtual ~seagull() {}
+
+            virtual void OnUpdate(float deltaTime) {}
+            virtual void OnRender() {}
+            virtual void OnImGuiRender() {}
+
+
+    };
+
+}
 GLFWwindow* InitGlfwWindow(void);
 void InitializeGL(GLFWwindow *window);
 void processKeypress(GLFWwindow *window, int key, int scancode, int action, int mods);
