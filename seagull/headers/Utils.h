@@ -1,12 +1,9 @@
 #ifndef UTILS_HEADER_FILE
 #define UTILS_HEADER_FILE
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
+#include <stdio.h>
+#include <string>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
