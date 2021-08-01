@@ -26,8 +26,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (MSVC)
     add_compile_options(/W4 /bigobj)
-elseif (APPLE OR UNIX)
-    add_compile_options(-g -Wall -Wformat-security)
+elseif (APPLE OR UNIX OR MINGW)
+    add_compile_options(-Wall)
     add_compile_options(-fvisibility=default)
 endif()
 
@@ -124,10 +124,19 @@ endif()
 
 # Copy windows dll files to where the binary is located
 if (WIN32 AND MINGW)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/bin/glew32.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                       COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimp.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        message(STATUS "You are using Window 10 and Mingw in Debug mode!\n")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/bin/glew32d.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimp.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    else()
+        message(STATUS "You are NOTTTT using Window 10 and Mingw in Debug mode!\n")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/bin/glew32.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimp.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    endif()
 elseif(WIN32 AND MSVC_IDE)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>" $<TARGET_FILE_DIR:${PROJECT_NAME}>
