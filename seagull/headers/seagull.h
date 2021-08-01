@@ -17,26 +17,35 @@
 #include "camera.h"
 #include "Utils.h"
 #include "Seagull_Ui.h"
+#include "filesystem.h"
 
 
 
 // The virtual functions allow the functions to be overriden in another class.
-namespace Seagull
-{
-    class seagull
-    {
-        public:
-            seagull() {}
-            virtual ~seagull() {}
+// namespace Seagull
+// {
+    // class seagull
+    // {
+        // public:
 
-            virtual void OnUpdate(float deltaTime) {}
-            virtual void OnRender() {}
-            virtual void OnImGuiRender() {}
+            // int CurrentWindowWidth;
+            // int CurrentWindowHeight;
 
+            // float deltaTime;
+            // double lastFrame;
 
-    };
+            // seagull() {}
+            // virtual ~seagull() {}
 
-}
+            // virtual void OnUpdate(float deltaTime) {}
+            // virtual void OnRender() {}
+            // virtual void OnImGuiRender() {}
+
+            // void start() {}
+
+    // };
+
+// }
 GLFWwindow* InitGlfwWindow(void);
 void InitializeGL(GLFWwindow *window);
 void processKeypress(GLFWwindow *window, int key, int scancode, int action, int mods);

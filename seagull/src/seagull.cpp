@@ -5,10 +5,7 @@
  *
  */
 
-
 #include "seagull.h"
-#include "glm/gtc/type_ptr.hpp"
-#include "filesystem.h"
 
 
 #include <stdio.h>
@@ -102,11 +99,9 @@ void processKeypress(GLFWwindow *window, int key, int scancode, int action, int 
                 else
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 break;
-
-            default:
-                break;
         }
     }
+
 }
 
 void processInput(GLFWwindow *window)
