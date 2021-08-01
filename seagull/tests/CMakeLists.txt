@@ -1,41 +1,7 @@
 cmake_minimum_required(VERSION 3.16.3)
-project (seagull VERSION 0.0.1)
 
+message(STATUS "Building Tests")
 
-# Options (ignore these. Don't turn them on)
-
-option( SEAGULL_BUILD_TESTS 
-    "Build the test suite for Seagull in addition to the library." 
-    OFF
-)
-
-if (SEAGULL_BUILD_TESTS)
-    message(STATUS  "HEELLELELLOOO WOROROORLRLLLRDD")
-    message(STATUS "I don't work :(")
-    add_subdirectory(seagull/tests/)
-endif()
-
-message(STATUS "System: ${CMAKE_SYSTEM}")
-
-
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-if (MSVC)
-    add_compile_options(/W4 /bigobj)
-elseif (APPLE OR UNIX)
-    add_compile_options(-g -Wall -Wformat-security)
-    add_compile_options(-fvisibility=default)
-endif()
-
-IF(APPLE)
-    LINK_DIRECTORIES(/usr/local/lib)
-ENDIF()
-
-# Add vendor libraries
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 set(BUILD_UTILS OFF)
@@ -73,17 +39,20 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/seagull/vendor/stbimage
     ${CMAKE_SOURCE_DIR}/seagull/vendor/imgui)
 
-file(GLOB PROJECT_SOURCES "${CMAKE_SOURCE_DIR}/seagull/src/*.cpp")
-file(GLOB PROJECT_HEADERS "${CMAKE_SOURCE_DIR}/seagull/headers/*.h")
+file(GLOB PROJECT_SOURCES "${CMAKE_SOURCE_DIR}/TestPinwheel.cpp")
+file(GLOB PROJECT_HEADERS "../headers/*.h")
 
-file(GLOB VENDOR_IMGUI_S "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/*.cpp")
-file(GLOB VENDOR_IMGUI_H "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/*.h")
+file(GLOB VENDOR_IMGUI_S "../vendor/imgui/*.cpp")
+file(GLOB VENDOR_IMGUI_H "../vendor/imgui/*.h")
 
 set(VENDOR_IMGUI_OPENGL_GLFW
-    "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/backends/imgui_impl_glfw.h"
-    "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/backends/imgui_impl_glfw.cpp"
-    "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/backends/imgui_impl_opengl3.h"
-    "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/backends/imgui_impl_opengl3.cpp")
+    "../vendor/imgui/backends/imgui_impl_glfw.h"
+    "../vendor/imgui/backends/imgui_impl_glfw.cpp"
+    "../vendor/imgui/backends/imgui_impl_opengl3.h"
+    "../vendor/imgui/backends/imgui_impl_opengl3.cpp")
+
+
+project(PinwheelTest)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
     ${VENDOR_IMGUI_S} ${VENDOR_IMGUI_H} ${VENDOR_IMGUI_OPENGL_GLFW})
@@ -142,3 +111,4 @@ if (NOT MSVC_IDE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 endif()
+
