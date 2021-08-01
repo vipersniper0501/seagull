@@ -1,0 +1,29 @@
+# Blender MTL File: 'monolith.blend'
+# Material Count: 2
+
+newmtl Ground
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump ujqmejtr_8K_Normal.jpg
+map_Kd ujqmejtr_8K_Albedo.jpg
+map_Ns ujqmejtr_8K_Roughness.jpg
+
+newmtl Material.001
+Ns 222.280994
+Ka 0.445455 0.445455 0.445455
+Kd 0.379435 0.379435 0.379435
+Ks 0.590909 0.590909 0.590909
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump se2abbvc_8K_Normal.jpg
+map_Kd se2abbvc_8K_Albedo.jpg
+map_Ns se2abbvc_8K_Roughness.jpg
+refl se2abbvc_8K_Metalness.jpg

@@ -254,6 +254,15 @@ int main(void)
 
     // Could have a camera.update() function to loop through loaded shaders and update the uniforms with new values to reduce
     // duplicated code.
+    //
+
+    Shader monolithShader(FileSystem::getPath("seagull/tmp_shaders/monolithVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/monolithFragment.glsl"));
+    Model monolithModel(FileSystem::getPath("seagull/tmp/monolith/monolith.obj"));
+    monolithShader.use();
+    monolithShader.setMat4("ViewMatrix", ViewMatrix);
+    monolithShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+    monolithShader.setInt("material.diffuse", 0);
+    monolithShader.setInt("material.specular", 1);
 
     Shader backpackShader(FileSystem::getPath("seagull/tmp_shaders/backpackVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/backpackFragment.glsl"));
     Model backpackModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"));
@@ -296,22 +305,22 @@ int main(void)
         ViewMatrix = camera.GetViewMatrix();
         ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
 
-        // Transform Mesh around center
+        // // Transform Mesh around center
         glm::mat4 ModelMatrix = glm::mat4(1.0f);
         ModelMatrix = glm::translate(ModelMatrix, glm::vec3( 0.0f, 0.0f, -9.0f));
         ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(45.0f), glm::vec3(0.0, 0.1, 0.0));
 
 
-        // Update shaders' uniforms
+        // // Update shaders' uniforms
         backpackShader.setMat4("ViewMatrix", ViewMatrix);
         backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
         backpackShader.setMat4("ModelMatrix", ModelMatrix);
 
 
-        // Backpack Model's lighting settings
+        // // Backpack Model's lighting settings
         backpackShader.setFloat("material.shininess", 64.0f);
         backpackShader.setVec3("viewPos", camera.Position); // viewPos should be set to camera.Position when camera is in use.
-        backpackShader.setVec3("pointLight.position", lightPos);
+        backpackShader.setVec3("lightPos", lightPos);
         backpackShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
         backpackShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
         backpackShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -320,11 +329,35 @@ int main(void)
         backpackShader.setFloat("pointLight.linear", 0.045f);
         backpackShader.setFloat("pointLight.quadratic", 0.0075f);
 
-        // Draw Backpack Mesh
+        // // Draw Backpack Mesh
         backpackModel.Draw(backpackShader);
 
 
 
+
+
+        monolithShader.use();
+
+        ModelMatrix = glm::mat4(1.0f);
+        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3.0f, -5.0f, -2.0f));
+
+        monolithShader.setMat4("ViewMatrix", ViewMatrix);
+        monolithShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+        monolithShader.setMat4("ModelMatrix", ModelMatrix);
+
+        monolithShader.setFloat("material.shininess", 64.0f);
+        monolithShader.setVec3("viewPos", camera.Position); // viewPos should be set to camera.Position when camera is in use.
+        monolithShader.setVec3("lightPos", lightPos);
+        monolithShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        monolithShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        monolithShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+        monolithShader.setFloat("pointLight.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
+        monolithShader.setFloat("pointLight.linear", 0.045f);
+        monolithShader.setFloat("pointLight.quadratic", 0.0075f);
+
+        // Draw Monolith Mesh
+        monolithModel.Draw(monolithShader);
 
         lightCubeShader.use();
 
@@ -339,9 +372,6 @@ int main(void)
         // Draw LightCube Mesh
         cubeMesh.Draw(lightCubeShader);
 
-
-
-
         seagullUi.RenderUi();
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -351,6 +381,7 @@ int main(void)
 
     backpackShader.Destroy();
     lightCubeShader.Destroy();
+    monolithShader.Destroy();
 
     seagullUi.Destroy();
 
