@@ -97,7 +97,10 @@ void processKeypress(GLFWwindow *window, int key, int scancode, int action, int 
                 if (!mouseControl)
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 else
+                {
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    glfwSetCursorPos(window, lastX, lastY);
+                }
                 break;
         }
     }
@@ -204,6 +207,7 @@ GLFWwindow *InitGlfwWindow(void)
     glfwSetCursorPosCallback(window, mouse_callback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPos(window, lastX, lastY);
 
     previousTime = glfwGetTime();
     return window;
