@@ -64,7 +64,10 @@ namespace Seagull
             virtual void OnImGuiRender() {}
 
             virtual void ProcessSingleKeypress() {}
-            virtual void ProcessInput() {}
+            virtual void ProcessInput() 
+            {
+                processInput(window);
+            }
 
         private:
 

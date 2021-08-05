@@ -78,24 +78,6 @@ vector<unsigned int> Indices = {
 vector<Texture>textures = {};
 
 
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        seagull.camera->ProcessKeyboard(FORWARD, seagull.deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        seagull.camera->ProcessKeyboard(BACKWARD, seagull.deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        seagull.camera->ProcessKeyboard(LEFT, seagull.deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        seagull.camera->ProcessKeyboard(RIGHT, seagull.deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        seagull.camera->ProcessKeyboard(UP, seagull.deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-        seagull.camera->ProcessKeyboard(DOWN, seagull.deltaTime);
-}
-
-
-
 int main(void)
 {
     // GLFWwindow* window = InitGlfwWindow();
@@ -147,10 +129,8 @@ int main(void)
         seagull.deltaTime = currentFrame - seagull.lastFrame;
         seagull.lastFrame = currentFrame;
 
-        processInput(seagull.window);
+        seagull.ProcessInput();
 
-        seagullUi.NewFrame();
-        seagullUi.ShowMainMenuBar();
 
 
         lightPos = glm::make_vec3(seagullUi.lampLocation);
@@ -228,6 +208,9 @@ int main(void)
 
         // Draw LightCube Mesh
         cubeMesh.Draw(lightCubeShader);
+
+        seagullUi.NewFrame();
+        seagullUi.ShowMainMenuBar();
 
         seagullUi.RenderUi();
         /* Swap front and back buffers */
