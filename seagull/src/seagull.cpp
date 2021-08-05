@@ -21,9 +21,10 @@
 
 #define WINDOW_NAME "Seagull"
 
+Seagull::SeagullEngine seagull("Seagull");
 
-int CurrentWidth = 960;
-int CurrentHeight = 540;
+int Seagull::SeagullEngine::CurrentWidth = 960;
+int Seagull::SeagullEngine::CurrentHeight = 540;
 
 double previousTime;
 unsigned int FrameCount = 0;
@@ -31,15 +32,12 @@ unsigned int FrameCount = 0;
 glm::vec3 lightPos;// = glm::vec3(-3.0f, 2.0f, -5.0f);
 
 UI seagullUi;
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-float lastX = CurrentWidth / 2.0f;
-float lastY = CurrentHeight / 2.0f;
-bool firstMouse = true;
-bool mouseControl = true;
+Camera* Seagull::SeagullEngine::camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+float Seagull::SeagullEngine::lastX = CurrentWidth / 2.0f;
+float Seagull::SeagullEngine::lastY = CurrentHeight / 2.0f;
+bool Seagull::SeagullEngine::firstMouse = true;
+bool Seagull::SeagullEngine::mouseControl = true;
 
-// timing
-float deltaTime = 0.0f;	// time between current frame and last frame
-double lastFrame = 0.0f;
 
 // Cube Vertices
 vector<Vertex> Vertices = {
@@ -80,188 +78,43 @@ vector<unsigned int> Indices = {
 vector<Texture>textures = {};
 
 
-
-/*
- * @Brief: Processes user keypress
- * This function takes user input and assigns actions to the keypresses.
- * This is useful for when a key should only be activated once while pressed down.
- *
- * NOTE: In future, make it so that this can be easily modified.
- */
-void processKeypress(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    if (action == GLFW_PRESS) {
-        switch (key) {
-            case GLFW_KEY_ESCAPE:
-                mouseControl = (mouseControl == false ? true : false);
-                if (!mouseControl)
-                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                else
-                {
-                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                    glfwSetCursorPos(window, lastX, lastY);
-                }
-                break;
-        }
-    }
-
-}
-
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        seagull.camera->ProcessKeyboard(FORWARD, seagull.deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        seagull.camera->ProcessKeyboard(BACKWARD, seagull.deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        seagull.camera->ProcessKeyboard(LEFT, seagull.deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        seagull.camera->ProcessKeyboard(RIGHT, seagull.deltaTime);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(UP, deltaTime);
+        seagull.camera->ProcessKeyboard(UP, seagull.deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-        camera.ProcessKeyboard(DOWN, deltaTime);
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    if (mouseControl)
-    {
-        if (firstMouse)
-        {
-            lastX = xpos;
-            lastY = ypos;
-            firstMouse = false;
-        }
-
-        double xoffset = xpos - lastX;
-        double yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-        lastX = xpos;
-        lastY = ypos;
-
-        camera.ProcessMouseMovement(xoffset, yoffset);
-    }
-}
-
-/*
- * When window is resized, dimensions of OpenGL Viewport is set to the new
- * dimensions of the window.
- */
-void windowResizeCallbackFunc(GLFWwindow *window, int width, int height)
-{
-    CurrentWidth = width;
-    CurrentHeight = height;
-    GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
-}
-
-/*
- * Error callback function for GLFW.
- *
- * If an error occurs, it will be printed with the number and description.
- */
-void GlfwErrorCallback(int error, const char *description)
-{
-    fprintf(stderr, "GLFW ERROR: [%d] %s\n", error, description);
+        seagull.camera->ProcessKeyboard(DOWN, seagull.deltaTime);
 }
 
 
-/*
- * Creates a GLFW window ready for OpenGL
- * along with configuring some settings
- */
-GLFWwindow *InitGlfwWindow(void)
-{
-    /* Initialize the library */
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
-
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    #endif
-
-    /* Create a windowed mode window and its OpenGL context */
-    GLFWwindow *window = glfwCreateWindow(CurrentWidth, CurrentHeight, WINDOW_NAME, NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-    fprintf(stdout, "INFO: \n"
-                    "OpenGL Version: %s\n"
-                    "GLFW Version: %s\n"
-                    "Dear ImGui Version: %s\n"
-                    "Assimp: %u.%u.%u\n", 
-                    glGetString(GL_VERSION), glfwGetVersionString(), ImGui::GetVersion(),
-                    aiGetVersionMajor(), aiGetVersionMinor(), aiGetVersionPatch());
-    glfwSetFramebufferSizeCallback(window, windowResizeCallbackFunc);
-    glfwSetErrorCallback(GlfwErrorCallback);
-    glfwSetKeyCallback(window, processKeypress);
-    glfwSetCursorPosCallback(window, mouse_callback);
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPos(window, lastX, lastY);
-
-    previousTime = glfwGetTime();
-    return window;
-}
-
-/*
- * Initializes a GLFW Window and GLEW along with some basic OpenGL settings.
- */
-void InitializeGL(GLFWwindow *window)
-{
-    GLenum glewInitResult;
-
-    
-
-    glewExperimental = GL_TRUE;
-    glewInitResult = glewInit();
-    if (glewInitResult != GLEW_OK) {
-        fprintf(stdout, "GLEW ERROR: %s\n", glewGetErrorString(glewInitResult));
-        exit(EXIT_FAILURE);
-    }
-
-    GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
-
-    stbi_set_flip_vertically_on_load(true);
-
-    GLCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-    GLCall(glEnable(GL_DEPTH_TEST));
-    GLCall(glDepthFunc(GL_LESS));
-
-    GLCall(glEnable(GL_STENCIL_TEST));
-
-    seagullUi.init(window);
-    fix_render_on_mac(window);
-}
 
 int main(void)
 {
-    GLFWwindow* window = InitGlfwWindow();
-    
-    InitializeGL(window);
+    // GLFWwindow* window = InitGlfwWindow();
+
+    // InitializeGL(window);
 
     /*
      * This view matrix pushes everything back by 3 units before first draw,
      * works the same as pushing the camera back by 3 units.
      */ 
-    glm::mat4 ViewMatrix = camera.GetViewMatrix();
-    glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
+    glm::mat4 ViewMatrix = seagull.camera->GetViewMatrix();
+    glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)seagull.CurrentWidth/seagull.CurrentHeight, 1.0f, 100.0f);
 
     // Could have a camera.update() function to loop through loaded shaders and update the uniforms with new values to reduce
     // duplicated code.
     //
 
     Shader monolithShader(FileSystem::getPath("seagull/tmp_shaders/monolithVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/monolithFragment.glsl"));
-    Model monolithModel(FileSystem::getPath("seagull/tmp/monolith/monolith.obj"));
+    Model monolithModel(FileSystem::getPath("seagull/tmp/monolith/monolith.gltf"));
     monolithShader.use();
     monolithShader.setMat4("ViewMatrix", ViewMatrix);
     monolithShader.setMat4("ProjectionMatrix", ProjectionMatrix);
@@ -285,16 +138,16 @@ int main(void)
 
 
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(seagull.window))
     {
         /* Render here */
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
         double currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        seagull.deltaTime = currentFrame - seagull.lastFrame;
+        seagull.lastFrame = currentFrame;
 
-        processInput(window);
+        processInput(seagull.window);
 
         seagullUi.NewFrame();
         seagullUi.ShowMainMenuBar();
@@ -306,8 +159,8 @@ int main(void)
         backpackShader.use();
 
         // Set/Update ProjectionMatrix
-        ViewMatrix = camera.GetViewMatrix();
-        ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)CurrentWidth/CurrentHeight, 1.0f, 100.0f);
+        ViewMatrix = seagull.camera->GetViewMatrix();
+        ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)seagull.CurrentWidth/seagull.CurrentHeight, 1.0f, 100.0f);
 
         // // Transform Mesh around center
         glm::mat4 ModelMatrix = glm::mat4(1.0f);
@@ -323,7 +176,7 @@ int main(void)
 
         // // Backpack Model's lighting settings
         backpackShader.setFloat("material.shininess", 64.0f);
-        backpackShader.setVec3("viewPos", camera.Position); // viewPos should be set to camera.Position when camera is in use.
+        backpackShader.setVec3("viewPos", seagull.camera->Position);
         backpackShader.setVec3("lightPos", lightPos);
         backpackShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
         backpackShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -350,7 +203,7 @@ int main(void)
         monolithShader.setMat4("ModelMatrix", ModelMatrix);
 
         monolithShader.setFloat("material.shininess", 64.0f);
-        monolithShader.setVec3("viewPos", camera.Position); // viewPos should be set to camera.Position when camera is in use.
+        monolithShader.setVec3("viewPos", seagull.camera->Position);
         monolithShader.setVec3("lightPos", lightPos);
         monolithShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
         monolithShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
@@ -378,7 +231,7 @@ int main(void)
 
         seagullUi.RenderUi();
         /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(seagull.window);
         /* Poll for and process events */
         glfwPollEvents();
     }
