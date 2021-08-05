@@ -41,7 +41,11 @@ class Model
         void loadModel(std::string path)
         {
             Assimp::Importer import;
-            const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+            const aiScene *scene = import.ReadFile(path, 
+                    aiProcess_Triangulate | 
+                    aiProcess_FlipUVs | 
+                    aiProcess_CalcTangentSpace |
+                    aiProcess_JoinIdenticalVertices);
             if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
             {
                 std::cout << "\nASSIMP ERROR: " << import.GetErrorString() << std::endl;
@@ -150,16 +154,16 @@ class Model
             {
                 aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 
-                vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+                vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
                 textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-                vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+                vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
                 textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-                vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+                vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", scene);
                 textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-                vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+                vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height", scene);
                 textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
             }
@@ -167,7 +171,7 @@ class Model
             return Mesh(vertices, indices, textures);
         }
 
-        vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName)
+        vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene *scene)
         {
             vector<Texture> textures;
             for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
@@ -187,7 +191,14 @@ class Model
                 if (!skip)
                 {
                     Texture texture;
-                    texture.id = TextureFromFile(str.C_Str(), this->directory);
+                    if (auto emb_texture = scene->GetEmbeddedTexture(str.C_Str()))
+                    {
+                        texture.id = EmbeddedTextureFromFile(emb_texture);
+                    }
+                    else
+                    {
+                        texture.id = TextureFromFile(str.C_Str(), this->directory);
+                    }
                     texture.type = typeName;
                     texture.path = str.C_Str();
                     textures.push_back(texture);
@@ -222,10 +233,12 @@ class Model
 
                 GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
                 GLCall(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data));
+
                 GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
                 GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
                 GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
                 GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
                 GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
@@ -236,6 +249,55 @@ class Model
                 std::cout << "Texture failed to load at path: " << path << std::endl;
                 stbi_image_free(data);
             }
+
+            return textureID;
+        }
+
+        unsigned int EmbeddedTextureFromFile(const aiTexture *embedded_texture)
+        {
+
+            unsigned int textureID;
+            GLCall(glGenTextures(1, &textureID));
+
+            unsigned char *image_data = nullptr;
+
+            int width, height, components_per_pixel;
+            if (embedded_texture->mHeight == 0)
+            {
+                image_data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(embedded_texture->pcData), embedded_texture->mWidth, &width, &height, &components_per_pixel, 0);
+            }
+            else
+            {
+                image_data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(embedded_texture->pcData), embedded_texture->mWidth * embedded_texture->mHeight, &width, &height, &components_per_pixel, 0);
+            }
+
+            if (image_data)
+            {
+                GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
+
+                if (components_per_pixel == 3)
+                {
+                    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data));
+                }
+                else if (components_per_pixel == 4)
+                {
+                    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data));
+                }
+
+                GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+
+                GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+                GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+                GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+                GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+            }
+            else
+            {
+                std::cout << "Error loading embedded texture from memory: " << embedded_texture->mFilename.C_Str() << std::endl;
+                stbi_image_free(image_data);
+            }
+
 
             return textureID;
         }
