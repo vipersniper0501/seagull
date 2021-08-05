@@ -4,16 +4,16 @@ project (seagull VERSION 0.0.1)
 
 # Options (ignore these. Don't turn them on)
 
-option( SEAGULL_BUILD_TESTS 
-    "Build the test suite for Seagull in addition to the library." 
-    OFF
-)
+# option( SEAGULL_BUILD_TESTS
+    # "Build the test suite for Seagull in addition to the library."
+    # OFF
+# )
 
-if (SEAGULL_BUILD_TESTS)
-    message(STATUS  "HEELLELELLOOO WOROROORLRLLLRDD")
-    message(STATUS "I don't work :(")
-    add_subdirectory(seagull/tests/)
-endif()
+# if (SEAGULL_BUILD_TESTS)
+    # message(STATUS  "HEELLELELLOOO WOROROORLRLLLRDD")
+    # message(STATUS "I don't work :(")
+    # add_subdirectory(seagull/tests/)
+# endif()
 
 message(STATUS "System: ${CMAKE_SYSTEM}")
 
