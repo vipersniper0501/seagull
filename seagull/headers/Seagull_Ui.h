@@ -218,7 +218,7 @@ class UI
         }
 };
 
-float UI::lampLocation[3] = {0.0f};
+float UI::lampLocation[3] = {2.0f, 0.0f, 0.0f};
 float UI::lampIntensity = 0.0f;
 
 #endif

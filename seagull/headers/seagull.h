@@ -228,6 +228,8 @@ namespace Seagull
 
                 GLCall(glEnable(GL_STENCIL_TEST));
 
+                // GLCall(glEnable(GL_CULL_FACE));
+
                 seagullUi.init(window);
                 fix_render_on_mac(window);
             }

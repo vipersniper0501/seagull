@@ -93,23 +93,18 @@ int main(void)
 
     // Could have a camera.update() function to loop through loaded shaders and update the uniforms with new values to reduce
     // duplicated code.
-    //
 
-    Shader monolithShader(FileSystem::getPath("seagull/tmp_shaders/monolithVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/monolithFragment.glsl"));
-    Model monolithModel(FileSystem::getPath("seagull/tmp/monolith/monolith.gltf"));
-    monolithShader.use();
-    monolithShader.setMat4("ViewMatrix", ViewMatrix);
-    monolithShader.setMat4("ProjectionMatrix", ProjectionMatrix);
-    monolithShader.setInt("material.diffuse", 0);
-    monolithShader.setInt("material.specular", 1);
+    Shader EyeballShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"));
+    Model EyeballModel(FileSystem::getPath("seagull/tmp/Eyeball/Eyeball.gltf"));
+    EyeballShader.use();
+    EyeballShader.setMat4("ViewMatrix", ViewMatrix);
+    EyeballShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
     Shader backpackShader(FileSystem::getPath("seagull/tmp_shaders/backpackVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/backpackFragment.glsl"));
     Model backpackModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"));
     backpackShader.use();
     backpackShader.setMat4("ViewMatrix", ViewMatrix);
     backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
-    backpackShader.setInt("material.diffuse", 0);
-    backpackShader.setInt("material.specular", 1);
 
 
     Shader lightCubeShader(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
@@ -173,28 +168,29 @@ int main(void)
 
 
 
-        monolithShader.use();
+        EyeballShader.use();
 
         ModelMatrix = glm::mat4(1.0f);
-        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-3.0f, -5.0f, -2.0f));
+        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.0f, -1.0f, -2.0f));
+        ModelMatrix = glm::scale(ModelMatrix, glm::vec3(100.0f, 100.0f, 100.0f));
 
-        monolithShader.setMat4("ViewMatrix", ViewMatrix);
-        monolithShader.setMat4("ProjectionMatrix", ProjectionMatrix);
-        monolithShader.setMat4("ModelMatrix", ModelMatrix);
+        EyeballShader.setMat4("ViewMatrix", ViewMatrix);
+        EyeballShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+        EyeballShader.setMat4("ModelMatrix", ModelMatrix);
 
-        monolithShader.setFloat("material.shininess", 64.0f);
-        monolithShader.setVec3("viewPos", seagull.camera->Position);
-        monolithShader.setVec3("lightPos", lightPos);
-        monolithShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        monolithShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        monolithShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        EyeballShader.setFloat("material.shininess", 64.0f);
+        EyeballShader.setVec3("viewPos", seagull.camera->Position);
+        EyeballShader.setVec3("lightPos", lightPos);
+        EyeballShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        EyeballShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        EyeballShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        monolithShader.setFloat("pointLight.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
-        monolithShader.setFloat("pointLight.linear", 0.045f);
-        monolithShader.setFloat("pointLight.quadratic", 0.0075f);
+        EyeballShader.setFloat("pointLight.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
+        EyeballShader.setFloat("pointLight.linear", 0.045f);
+        EyeballShader.setFloat("pointLight.quadratic", 0.0075f);
 
         // Draw Monolith Mesh
-        monolithModel.Draw(monolithShader);
+        EyeballModel.Draw(EyeballShader);
 
         lightCubeShader.use();
 
@@ -221,7 +217,7 @@ int main(void)
 
     backpackShader.Destroy();
     lightCubeShader.Destroy();
-    monolithShader.Destroy();
+    EyeballShader.Destroy();
 
     seagullUi.Destroy();
 
