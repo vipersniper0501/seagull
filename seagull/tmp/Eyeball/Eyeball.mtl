@@ -5,11 +5,11 @@ newmtl Eye_material
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
-Ks 0.545455 0.545455 0.545455
+Ks 0.545000 0.545000 0.545000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd eye_05_basecolor.png
 map_Bump -bm 0.800000 color_01_normal.png
+map_Kd eye_05_basecolor.png
 map_Ns color_01_roughness.png
