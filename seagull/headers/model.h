@@ -23,6 +23,7 @@ class Model
         vector<Texture> textures_loaded;
         vector<Mesh> meshes;
         std::string directory;
+        std::string FileType;
 
         Model(std::string const &path)
         {
@@ -52,6 +53,8 @@ class Model
                 return;
             }
             directory = path.substr(0, path.find_last_of('/'));
+            FileType = std::strrchr(path.c_str(), '.');
+            std::cout << "FileType: " << FileType << std::endl;
 
             processNode(scene->mRootNode, scene);
         }
@@ -160,11 +163,30 @@ class Model
                 vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
                 textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-                vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", scene);
+                vector<Texture> normalMaps;
+                if (strcmp(FileType.c_str(), ".obj"))
+                {
+                    normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", scene);
+                }
+                else
+                {
+                    normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", scene);
+                }
                 textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-                vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height", scene);
+                vector<Texture> heightMaps;
+                if (strcmp(FileType.c_str(), ".obj"))
+                {
+                    heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height", scene);
+                }
+                else
+                {
+                    heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height", scene);
+                }
                 textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+
+                vector<Texture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao", scene);
+                textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
 
             }
 
@@ -259,6 +281,7 @@ class Model
             unsigned int textureID;
             GLCall(glGenTextures(1, &textureID));
 
+            std::cout << "Embedded Texture Name: " << embedded_texture->mFilename.C_Str() << std::endl;
             unsigned char *image_data = nullptr;
 
             int width, height, components_per_pixel;

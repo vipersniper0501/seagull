@@ -55,6 +55,7 @@ class Mesh {
             unsigned int specularNr = 1;
             unsigned int normalNr = 1;
             unsigned int heightNr = 1;
+            unsigned int aoNr = 1;
             for (unsigned int i = 0; i < textures.size(); i++)
             {
                 GLCall(glActiveTexture(GL_TEXTURE0 + i)); // activate proper texture unit before binding
@@ -69,6 +70,8 @@ class Mesh {
                     number = std::to_string(normalNr++);
                 else if (name == "texture_height")
                     number = std::to_string(heightNr++);
+                else if (name == "texture_ao")
+                    number = std::to_string(aoNr++);
 
                 shader.setInt(("material." + name + number).c_str(), i);
                 GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].id));
