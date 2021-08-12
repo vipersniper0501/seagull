@@ -11,7 +11,6 @@
 #include "shaders.h"
 #include "Utils.h"
 
-using namespace std;
 
 
 struct Vertex {
@@ -25,23 +24,26 @@ struct Vertex {
 
 struct Texture{
     unsigned int id;
-    string type;
-    string path;
+    std::string type;
+    std::string path;
+    std::string name;
 };
 
 class Mesh {
     public:
         // mesh data
-        vector<Vertex> vertices;
-        vector<unsigned int> indices;
-        vector<Texture> textures;
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> indices;
+        std::vector<Texture> textures;
         unsigned int VAO;
+        std::string name;
         
-        Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, std::string name = "")
         {
             this->vertices = vertices;
             this->indices = indices;
             this->textures = textures;
+            this->name = name;
 
             SetupMesh();
         };
@@ -55,7 +57,7 @@ class Mesh {
             unsigned int specularNr = 1;
             unsigned int normalNr = 1;
             unsigned int heightNr = 1;
-            unsigned int aoNr = 1;
+            // unsigned int aoNr = 1;
             for (unsigned int i = 0; i < textures.size(); i++)
             {
                 GLCall(glActiveTexture(GL_TEXTURE0 + i)); // activate proper texture unit before binding
@@ -70,8 +72,8 @@ class Mesh {
                     number = std::to_string(normalNr++);
                 else if (name == "texture_height")
                     number = std::to_string(heightNr++);
-                else if (name == "texture_ao")
-                    number = std::to_string(aoNr++);
+                // else if (name == "texture_ao")
+                    // number = std::to_string(aoNr++);
 
                 shader.setInt(("material." + name + number).c_str(), i);
                 GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].id));

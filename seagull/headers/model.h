@@ -15,15 +15,21 @@
 #include "mesh.h"
 
 // unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
+//
+
+// Might just want a global Loaded_Models struct instead of SceneInfo if nothing
+// else is being added to SceneInfo.
 
 class Model 
 {
     public:
         // model data
-        vector<Texture> textures_loaded;
-        vector<Mesh> meshes;
+        std::vector<Texture> textures_loaded;
+        std::vector<Mesh> meshes;
         std::string directory;
+        std::string path;
         std::string FileType;
+        std::string name;
 
         Model(std::string const &path)
         {
@@ -52,9 +58,12 @@ class Model
                 std::cout << "\nASSIMP ERROR: " << import.GetErrorString() << std::endl;
                 return;
             }
+            this->path = path;
             directory = path.substr(0, path.find_last_of('/'));
             FileType = std::strrchr(path.c_str(), '.');
             std::cout << "FileType: " << FileType << std::endl;
+            name = path.substr(path.find_last_of('/'), path.find_last_of('.'));
+            std::cout << "Model Name: " << name.c_str() << std::endl;
 
             processNode(scene->mRootNode, scene);
         }
@@ -80,9 +89,9 @@ class Model
 
         Mesh processMesh(aiMesh *mesh, const aiScene *scene)
         {
-            vector<Vertex> vertices;
-            vector<unsigned int> indices;
-            vector<Texture> textures;
+            std::vector<Vertex> vertices;
+            std::vector<unsigned int> indices;
+            std::vector<Texture> textures;
 
             // Vertices
             for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -157,13 +166,13 @@ class Model
             {
                 aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 
-                vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
+                std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
                 textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-                vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
+                std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", scene);
                 textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-                vector<Texture> normalMaps;
+                std::vector<Texture> normalMaps;
                 if (strcmp(FileType.c_str(), ".obj"))
                 {
                     normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", scene);
@@ -174,7 +183,7 @@ class Model
                 }
                 textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
-                vector<Texture> heightMaps;
+                std::vector<Texture> heightMaps;
                 if (strcmp(FileType.c_str(), ".obj"))
                 {
                     heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height", scene);
@@ -185,17 +194,19 @@ class Model
                 }
                 textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-                vector<Texture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao", scene);
-                textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
+                // std::vector<Texture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao", scene);
+                // textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
 
             }
 
-            return Mesh(vertices, indices, textures);
+            // std::cout << "New Mesh parsed w/ name: " << mesh->mName.C_Str() << std::endl;
+
+            return Mesh(vertices, indices, textures, (std::string)mesh->mName.C_Str());
         }
 
-        vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene *scene)
+        std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene *scene)
         {
-            vector<Texture> textures;
+            std::vector<Texture> textures;
             for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
             {
                 aiString str;
@@ -216,10 +227,12 @@ class Model
                     if (auto emb_texture = scene->GetEmbeddedTexture(str.C_Str()))
                     {
                         texture.id = EmbeddedTextureFromFile(emb_texture);
+                        texture.name = emb_texture->mFilename.C_Str();
                     }
                     else
                     {
                         texture.id = TextureFromFile(str.C_Str(), this->directory);
+                        texture.name = str.C_Str();
                     }
                     texture.type = typeName;
                     texture.path = str.C_Str();
@@ -231,15 +244,17 @@ class Model
             return textures;
         }
 
-        unsigned int TextureFromFile(const char *path, const string &directory)
+        unsigned int TextureFromFile(const char *path, const std::string &directory)
         {
-            string filename = string(path);
+            std::string filename = std::string(path);
             filename = directory + '/' + filename;
 
             std::cout << "Texture Map File: " << filename << std::endl;
 
             unsigned int textureID;
             GLCall(glGenTextures(1, &textureID));
+
+            stbi_set_flip_vertically_on_load(true);
 
             int width, height, nrComponents;
             unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
@@ -283,6 +298,8 @@ class Model
 
             std::cout << "Embedded Texture Name: " << embedded_texture->mFilename.C_Str() << std::endl;
             unsigned char *image_data = nullptr;
+
+            stbi_set_flip_vertically_on_load(false);
 
             int width, height, components_per_pixel;
             if (embedded_texture->mHeight == 0)

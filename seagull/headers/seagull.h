@@ -18,6 +18,7 @@
 #include "Utils.h"
 #include "Seagull_Ui.h"
 #include "filesystem.h"
+#include "SceneManager.h"
 
 
 
@@ -37,7 +38,6 @@ namespace Seagull
             GLFWwindow *window;
 
             double previousTime;
-            unsigned int FrameCount = 0;
 
             UI seagullUi;
 
@@ -220,7 +220,6 @@ namespace Seagull
 
                 GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
 
-                stbi_set_flip_vertically_on_load(true);
 
                 GLCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
                 GLCall(glEnable(GL_DEPTH_TEST));
