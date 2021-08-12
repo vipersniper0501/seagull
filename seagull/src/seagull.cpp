@@ -19,7 +19,7 @@
 #define GLFW_INCLUDE_NONE
 #define GLEW_STATIC
 
-#define WINDOW_NAME "Seagull"
+// #define WINDOW_NAME "Seagull"
 
 Seagull::SeagullEngine seagull("Seagull");
 
@@ -27,7 +27,6 @@ int Seagull::SeagullEngine::CurrentWidth = 960;
 int Seagull::SeagullEngine::CurrentHeight = 540;
 
 double previousTime;
-unsigned int FrameCount = 0;
 
 glm::vec3 lightPos;// = glm::vec3(-3.0f, 2.0f, -5.0f);
 
@@ -40,7 +39,7 @@ bool Seagull::SeagullEngine::mouseControl = true;
 
 
 // Cube Vertices
-vector<Vertex> Vertices = {
+std::vector<Vertex> Vertices = {
     // front
     {{-0.5, -0.5,  0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
     {{ 0.5, -0.5,  0.5}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
@@ -54,7 +53,7 @@ vector<Vertex> Vertices = {
 };
 
 
-vector<unsigned int> Indices = {
+std::vector<unsigned int> Indices = {
     // front
     0, 1, 2,
     2, 3, 0,
@@ -75,14 +74,11 @@ vector<unsigned int> Indices = {
     6, 7, 3
 };
 
-vector<Texture>textures = {};
+std::vector<Texture>textures = {};
 
 
 int main(void)
 {
-    // GLFWwindow* window = InitGlfwWindow();
-
-    // InitializeGL(window);
 
     /*
      * This view matrix pushes everything back by 3 units before first draw,
@@ -96,12 +92,23 @@ int main(void)
 
     Shader EyeballShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"));
     Model EyeballModel(FileSystem::getPath("seagull/tmp/Eyeball/Eyeball.gltf"));
+    SceneInfo.loaded_models.push_back(EyeballModel);
     EyeballShader.use();
     EyeballShader.setMat4("ViewMatrix", ViewMatrix);
     EyeballShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
+
+    Shader HelmetShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"));
+    Model HelmetModel(FileSystem::getPath("seagull/tmp/helmet/DamagedHelmet.gltf"));
+    SceneInfo.loaded_models.push_back(HelmetModel);
+    HelmetShader.use();
+    HelmetShader.setMat4("ViewMatrix", ViewMatrix);
+    HelmetShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+
+
     Shader backpackShader(FileSystem::getPath("seagull/tmp_shaders/backpackVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/backpackFragment.glsl"));
     Model backpackModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"));
+    SceneInfo.loaded_models.push_back(backpackModel);
     backpackShader.use();
     backpackShader.setMat4("ViewMatrix", ViewMatrix);
     backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
@@ -113,6 +120,14 @@ int main(void)
     lightCubeShader.setMat4("ViewMatrix", ViewMatrix);
     lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
+    for (int i = 0; i < backpackModel.textures_loaded.size(); i++)
+    {
+        std::cout << "Backpack Model Texture: " << backpackModel.textures_loaded.at(i).name.c_str() << std::endl;
+    }
+    for (int i = 0; i < EyeballModel.textures_loaded.size(); i++)
+    {
+        std::cout << "Eyeball Model Texture: " << EyeballModel.textures_loaded.at(i).name.c_str() << std::endl;
+    }
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(seagull.window))
@@ -191,6 +206,33 @@ int main(void)
 
         // Draw Monolith Mesh
         EyeballModel.Draw(EyeballShader);
+
+
+
+        HelmetShader.use();
+
+        ModelMatrix = glm::mat4(1.0f);
+        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2.0f, 1.0f, -3.0f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        HelmetShader.setMat4("ViewMatrix", ViewMatrix);
+        HelmetShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+        HelmetShader.setMat4("ModelMatrix", ModelMatrix);
+
+        HelmetShader.setFloat("material.shininess", 64.0f);
+        HelmetShader.setVec3("viewPos", seagull.camera->Position);
+        HelmetShader.setVec3("lightPos", lightPos);
+        HelmetShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        HelmetShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        HelmetShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+        HelmetShader.setFloat("pointLight.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
+        HelmetShader.setFloat("pointLight.linear", 0.045f);
+        HelmetShader.setFloat("pointLight.quadratic", 0.0075f);
+
+        // Draw Monolith Mesh
+        HelmetModel.Draw(HelmetShader);
+
 
         lightCubeShader.use();
 
