@@ -120,7 +120,6 @@ void main(void)
     vec3 norm = texture(material.texture_normal1, fs_in.TexCoords).rgb;
     norm = normalize(norm * 2.0 - 1.0);
 
-    vec3 ao = texture(material.texture_ao1, fs_in.TexCoords).rgb;
 
     vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
 
