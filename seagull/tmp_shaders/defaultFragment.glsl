@@ -26,7 +26,7 @@ struct Material {
     sampler2D texture_specular1;
     sampler2D texture_normal1;
     sampler2D texture_height1;
-    sampler2D texture_ao1;
+    // sampler2D texture_ao1;
     float shininess;
 };
 
@@ -99,6 +99,8 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+    if (diff == 0.0)
+        spec = 0.0;
 
     // attenuation
     float distance    = length(fs_in.TangentLightPos - fragPos);
@@ -119,8 +121,7 @@ void main(void)
     // properties
     vec3 norm = texture(material.texture_normal1, fs_in.TexCoords).rgb;
     norm = normalize(norm * 2.0 - 1.0);
-
-
+    
     vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
 
 
