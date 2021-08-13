@@ -106,12 +106,14 @@ int main(void)
     HelmetShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
 
-    Shader backpackShader(FileSystem::getPath("seagull/tmp_shaders/backpackVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/backpackFragment.glsl"));
+    Shader backpackShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"));
     Model backpackModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"));
     SceneInfo.loaded_models.push_back(backpackModel);
     backpackShader.use();
     backpackShader.setMat4("ViewMatrix", ViewMatrix);
     backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+    // backpackShader.setInt("texture_diffuse1", 0);
+    // backpackShader.setInt("texture_normal1", 1);
 
 
     Shader lightCubeShader(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
@@ -120,11 +122,11 @@ int main(void)
     lightCubeShader.setMat4("ViewMatrix", ViewMatrix);
     lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
-    for (int i = 0; i < backpackModel.textures_loaded.size(); i++)
+    for (int i = 0; i < (int)backpackModel.textures_loaded.size(); i++)
     {
         std::cout << "Backpack Model Texture: " << backpackModel.textures_loaded.at(i).name.c_str() << std::endl;
     }
-    for (int i = 0; i < EyeballModel.textures_loaded.size(); i++)
+    for (int i = 0; i < (int)EyeballModel.textures_loaded.size(); i++)
     {
         std::cout << "Eyeball Model Texture: " << EyeballModel.textures_loaded.at(i).name.c_str() << std::endl;
     }

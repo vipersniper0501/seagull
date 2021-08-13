@@ -173,7 +173,7 @@ class Model
                 textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
                 std::vector<Texture> normalMaps;
-                if (strcmp(FileType.c_str(), ".obj"))
+                if (FileType == ".obj")
                 {
                     normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", scene);
                 }
@@ -184,7 +184,7 @@ class Model
                 textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
                 std::vector<Texture> heightMaps;
-                if (strcmp(FileType.c_str(), ".obj"))
+                if (FileType == ".obj")
                 {
                     heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height", scene);
                 }
