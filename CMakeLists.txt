@@ -31,6 +31,10 @@ elseif (APPLE OR UNIX OR MINGW)
     add_compile_options(-fvisibility=default)
 endif()
 
+if (MINGW)
+    add_compile_options(-lstdc++fs)
+endif()
+
 IF(APPLE)
     LINK_DIRECTORIES(/usr/local/lib)
 ENDIF()
