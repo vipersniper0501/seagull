@@ -14,7 +14,7 @@
 
 #include <assimp/version.h>
 
-#include <filesystem>
+#include <sys/stat.h>
 
 #include "filesystem.h"
 #include "SceneManager.h"
@@ -171,7 +171,12 @@ class UI
                         {
                             bool open = ImGui::TreeNodeEx(node->Name, ImGuiTreeNodeFlags_SpanFullWidth);
                             ImGui::TableNextColumn();
-                            ImGui::TextDisabled("--");
+                            if (node->Size == -1)
+                                ImGui::TextDisabled("Unknown");
+                            else if (node->Size == -2)
+                                ImGui::TextDisabled("--");
+                            else
+                                ImGui::TextDisabled("%d", node->Size);
                             ImGui::TableNextColumn();
                             ImGui::TextUnformatted(node->Type);
                             if (open)
@@ -189,6 +194,8 @@ class UI
                             ImGui::TableNextColumn();
                             if (node->Size == -1)
                                 ImGui::Text("Unknown");
+                            else if (node->Size == -2)
+                                ImGui::TextDisabled("--");
                             else
                                 ImGui::Text("%d", node->Size);
                             ImGui::TableNextColumn();
@@ -203,36 +210,36 @@ class UI
                  * information.
                  */
 
-                static SceneNode nodes[256];
+                static SceneNode nodes[1024];
                 int oldId = 1; // Last used ID by a node
                 int oldObjectChildrenSize = (int)SceneInfo.loaded_models.size();
                 int nodeIndex = 1;
-                SceneNode rootNode = {"Root", "--", -1, oldId, oldObjectChildrenSize};
+                SceneNode rootNode = {"Root", "--", -2, oldId, oldObjectChildrenSize};
                 nodes[0] = rootNode;
 
                 // Cycle through loaded_models and add them to the top of the scene_heiarchy
-                for (int i = 0; i < SceneInfo.loaded_models.size(); i++)
+                for (int i = 0; i < (int)SceneInfo.loaded_models.size(); i++)
                 {
                     int Id = oldId + oldObjectChildrenSize;
                     int objectChildrenSize = 2; // Meshes and Textures are the only "children" of a model currently
-                    std::filesystem::path objectPath = SceneInfo.loaded_models[i].path.c_str();
-                    int objectDiskSize = (int)std::filesystem::file_size(objectPath);
-                    SceneNode node = {SceneInfo.loaded_models[i].name.c_str(), "Model", objectDiskSize, Id, objectChildrenSize};
+                    struct stat stat_buf;
+                    stat(SceneInfo.loaded_models[i].path.c_str(), &stat_buf);
+                    SceneNode node = {SceneInfo.loaded_models[i].name.c_str(), "Model", (int)stat_buf.st_size, Id, objectChildrenSize};
                     nodes[nodeIndex] = node;
                     oldId = Id;
                     nodeIndex++;
                 }
 
                 // Add enough Mesh and Texture "parents/folder" for each model
-                for (int i = 0; i < SceneInfo.loaded_models.size(); i++)
+                for (int i = 0; i < (int)SceneInfo.loaded_models.size(); i++)
                 {
                     int meshId = oldId + oldObjectChildrenSize;
-                    SceneNode nodeMesh = {"Meshes", "Mesh", -1, meshId, (int)SceneInfo.loaded_models[i].meshes.size()};
+                    SceneNode nodeMesh = {"Meshes", "Mesh", -2, meshId, (int)SceneInfo.loaded_models[i].meshes.size()};
                     nodes[nodeIndex] = nodeMesh;
                     nodeIndex++;
 
                     int textureId = meshId + (int)SceneInfo.loaded_models[i].meshes.size();
-                    SceneNode nodeTexture = {"Textures", "Texture", -1, textureId, (int)SceneInfo.loaded_models[i].textures_loaded.size()};
+                    SceneNode nodeTexture = {"Textures", "Texture", -2, textureId, (int)SceneInfo.loaded_models[i].textures_loaded.size()};
                     nodes[nodeIndex] = nodeTexture;
                     nodeIndex++;
 
@@ -242,15 +249,15 @@ class UI
                 }
 
                 // Cycle through the models meshes and add them to the heiarchy.
-                for (int i = 0; i < SceneInfo.loaded_models.size(); i++)
+                for (int i = 0; i < (int)SceneInfo.loaded_models.size(); i++)
                 {
-                    for (int j = 0; j < SceneInfo.loaded_models[i].meshes.size(); j++)
+                    for (int j = 0; j < (int)SceneInfo.loaded_models[i].meshes.size(); j++)
                     {
                         SceneNode node = {SceneInfo.loaded_models[i].meshes[j].name.c_str(), "Mesh", -1, -1, -1};
                         nodes[nodeIndex] = node;
                         nodeIndex++;
                     }
-                    for (int x = 0; x < SceneInfo.loaded_models[i].textures_loaded.size(); x++)
+                    for (int x = 0; x < (int)SceneInfo.loaded_models[i].textures_loaded.size(); x++)
                     {
                         SceneNode node = {SceneInfo.loaded_models[i].textures_loaded[x].name.c_str(), "Texture", -1, -1, -1};
                         nodes[nodeIndex] = node;
