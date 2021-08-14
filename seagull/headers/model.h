@@ -26,10 +26,12 @@ class Model
         // model data
         std::vector<Texture> textures_loaded;
         std::vector<Mesh> meshes;
+        std::vector<aiLight> Lights;
         std::string directory;
         std::string path;
         std::string FileType;
         std::string name;
+        unsigned int nrLights;
 
         Model(std::string const &path)
         {
@@ -79,6 +81,15 @@ class Model
             {
                 aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
                 meshes.push_back(processMesh(mesh, scene));
+            }
+            if (scene->HasLights())
+            {
+                // nrLights = scene->mNumLights;
+                for (unsigned int i = 0; i < scene->mNumLights; i++)
+                {
+                    aiLight *light = scene->mLights[i];
+                    Lights.push_back(*light);
+                }
             }
             // then do the same for each of its children
             for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -194,8 +205,11 @@ class Model
                 }
                 textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-                // std::vector<Texture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao", scene);
-                // textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
+                std::vector<Texture> aoMaps = loadMaterialTextures(material, aiTextureType_LIGHTMAP, "texture_ao", scene);
+                textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
+
+                std::vector<Texture> emissiveMaps = loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene);
+                textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
 
             }
 

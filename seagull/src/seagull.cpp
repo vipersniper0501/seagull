@@ -19,7 +19,6 @@
 #define GLFW_INCLUDE_NONE
 #define GLEW_STATIC
 
-// #define WINDOW_NAME "Seagull"
 
 Seagull::SeagullEngine seagull("Seagull");
 
@@ -77,6 +76,19 @@ std::vector<unsigned int> Indices = {
 std::vector<Texture>textures = {};
 
 
+void updateLighting(Shader &shader, glm::vec3 lightPos)
+{
+    shader.setVec3("lightPos", lightPos);
+    shader.setVec3("lighting.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+    shader.setVec3("lighting.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+    shader.setVec3("lighting.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+    shader.setFloat("lighting.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
+    shader.setFloat("lighting.linear", 0.045f);
+    shader.setFloat("lighting.quadratic", 0.0075f);
+}
+
+
 int main(void)
 {
 
@@ -112,9 +124,13 @@ int main(void)
     backpackShader.use();
     backpackShader.setMat4("ViewMatrix", ViewMatrix);
     backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
-    // backpackShader.setInt("texture_diffuse1", 0);
-    // backpackShader.setInt("texture_normal1", 1);
 
+    // Shader cityShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"));
+    // Model cityModel(FileSystem::getPath("seagull/tmp/ugly_city.fbx"));
+    // SceneInfo.loaded_models.push_back(cityModel);
+    // cityShader.use();
+    // cityShader.setMat4("ViewMatrix", ViewMatrix);
+    // cityShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
     Shader lightCubeShader(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
     Mesh cubeMesh(Vertices, Indices, textures);
@@ -122,14 +138,6 @@ int main(void)
     lightCubeShader.setMat4("ViewMatrix", ViewMatrix);
     lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
-    for (int i = 0; i < (int)backpackModel.textures_loaded.size(); i++)
-    {
-        std::cout << "Backpack Model Texture: " << backpackModel.textures_loaded.at(i).name.c_str() << std::endl;
-    }
-    for (int i = 0; i < (int)EyeballModel.textures_loaded.size(); i++)
-    {
-        std::cout << "Eyeball Model Texture: " << EyeballModel.textures_loaded.at(i).name.c_str() << std::endl;
-    }
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(seagull.window))
@@ -169,14 +177,8 @@ int main(void)
         // // Backpack Model's lighting settings
         backpackShader.setFloat("material.shininess", 64.0f);
         backpackShader.setVec3("viewPos", seagull.camera->Position);
-        backpackShader.setVec3("lightPos", lightPos);
-        backpackShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        backpackShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        backpackShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        backpackShader.setFloat("pointLight.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
-        backpackShader.setFloat("pointLight.linear", 0.045f);
-        backpackShader.setFloat("pointLight.quadratic", 0.0075f);
+        updateLighting(backpackShader, lightPos);
 
         // // Draw Backpack Mesh
         backpackModel.Draw(backpackShader);
@@ -197,16 +199,10 @@ int main(void)
 
         EyeballShader.setFloat("material.shininess", 64.0f);
         EyeballShader.setVec3("viewPos", seagull.camera->Position);
-        EyeballShader.setVec3("lightPos", lightPos);
-        EyeballShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        EyeballShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        EyeballShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        EyeballShader.setFloat("pointLight.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
-        EyeballShader.setFloat("pointLight.linear", 0.045f);
-        EyeballShader.setFloat("pointLight.quadratic", 0.0075f);
+        updateLighting(EyeballShader, lightPos);
 
-        // Draw Monolith Mesh
+        // Draw Eyeball Mesh
         EyeballModel.Draw(EyeballShader);
 
 
@@ -223,14 +219,8 @@ int main(void)
 
         HelmetShader.setFloat("material.shininess", 64.0f);
         HelmetShader.setVec3("viewPos", seagull.camera->Position);
-        HelmetShader.setVec3("lightPos", lightPos);
-        HelmetShader.setVec3("pointLight.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-        HelmetShader.setVec3("pointLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-        HelmetShader.setVec3("pointLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        HelmetShader.setFloat("pointLight.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
-        HelmetShader.setFloat("pointLight.linear", 0.045f);
-        HelmetShader.setFloat("pointLight.quadratic", 0.0075f);
+        updateLighting(HelmetShader, lightPos);
 
         // Draw Monolith Mesh
         HelmetModel.Draw(HelmetShader);
