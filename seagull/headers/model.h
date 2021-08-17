@@ -221,6 +221,20 @@ class Model
         std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene *scene)
         {
             std::vector<Texture> textures;
+            if (mat->GetTextureCount(type) == 0)
+            {
+                std::cout << "HEY! No texture of type " << typeName << " found!" << std::endl;
+
+                Texture texture;
+                if (typeName == "texture_emissive")
+                    texture.id = LoadDefaultTexture(0);
+                else
+                    texture.id = LoadDefaultTexture();
+                texture.name = "texture_missing";
+                texture.type = typeName;
+                textures.push_back(texture);
+                return textures;
+            }
             for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
             {
                 aiString str;
@@ -327,16 +341,17 @@ class Model
 
             if (image_data)
             {
+                GLenum format = 0;
+                if (components_per_pixel == 1)
+                    format = GL_RED;
+                else if (components_per_pixel == 3)
+                    format = GL_RGB;
+                else if (components_per_pixel == 4)
+                    format = GL_RGBA;
+
                 GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
 
-                if (components_per_pixel == 3)
-                {
-                    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data));
-                }
-                else if (components_per_pixel == 4)
-                {
-                    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data));
-                }
+                GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, image_data));
 
                 GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
@@ -352,6 +367,28 @@ class Model
                 stbi_image_free(image_data);
             }
 
+
+            return textureID;
+        }
+
+        unsigned int LoadDefaultTexture(GLubyte color = 255)
+        {
+            unsigned int textureID;
+            GLCall(glGenTextures(1, &textureID));
+
+            GLubyte data[] = {color, color, color, color};
+            
+            GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
+
+            GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+
+            GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+            GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 
             return textureID;
         }
