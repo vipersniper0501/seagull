@@ -49,7 +49,7 @@ class Mesh {
         };
 
         /*
-         *
+         * Binds textures and draws the mesh to the screen
          */
         void Draw(Shader &shader)
         {
@@ -77,6 +77,7 @@ class Mesh {
                     number = std::to_string(aoNr++);
                 else if (name == "texture_emissive")
                     number = std::to_string(emissiveNr++);
+
 
                 shader.setInt(("material." + name + number).c_str(), i);
                 GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].id));
