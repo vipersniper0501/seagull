@@ -42,36 +42,10 @@ struct Light {
     float quadratic;
 };
 
-// struct DirLight {
-    // vec3 direction;
-
-    // vec3 ambient;
-    // vec3 diffuse;
-    // vec3 specular;
-// };
-
-// uniform DirLight dirLight;
-
-
-// struct PointLight {
-    // vec3 position;
-
-    // float constant;
-    // float linear;
-    // float quadratic;
-
-    // vec3 ambient;
-    // vec3 diffuse;
-    // vec3 specular;
-// };
 
 uniform Light lighting;
 
 uniform Material material;
-// uniform Light light;
-
-// uniform vec3 viewPos;
-// uniform vec3 lightPos;
 
 
 // vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
@@ -116,7 +90,7 @@ vec3 CalcPointLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
-    return (emissive + (ambient + diffuse + specular ));
+    return (emissive + (ambient + diffuse + specular));
 }
 
 void main(void)
@@ -127,8 +101,10 @@ void main(void)
     
     vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
 
+    // Used for testing textures
     vec3 ao = texture(material.texture_ao1, fs_in.TexCoords).rgb;
     vec3 emissive = texture(material.texture_emissive1, fs_in.TexCoords).rgb;
+    vec3 diff = texture(material.texture_diffuse1, fs_in.TexCoords).rgb;
 
     vec3 result = CalcPointLight(lighting, norm, fs_in.TangentFragPos, viewDir);
     FragColor = vec4(result, 1.0);
