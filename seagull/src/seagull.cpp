@@ -97,7 +97,7 @@ int main(void)
      * works the same as pushing the camera back by 3 units.
      */ 
     glm::mat4 ViewMatrix = seagull.camera->GetViewMatrix();
-    glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)seagull.CurrentWidth/seagull.CurrentHeight, 1.0f, 100.0f);
+    glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)seagull.CurrentWidth/seagull.CurrentHeight, 0.01f, 1000.0f);
 
     // Could have a camera.update() function to loop through loaded shaders and update the uniforms with new values to reduce
     // duplicated code.
