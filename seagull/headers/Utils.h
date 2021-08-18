@@ -24,12 +24,12 @@ int SubStrFind(char *text, char *search);
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
-void GLClearError(void)
+inline void GLClearError(void)
 {
     while (glGetError() != GL_NO_ERROR);
 }
 
-bool GLLogCall(const char *function, const char *file, int line)
+inline bool GLLogCall(const char *function, const char *file, int line)
 {
     GLenum error = glGetError();
     while (error) {
@@ -43,7 +43,7 @@ bool GLLogCall(const char *function, const char *file, int line)
  * Fixes rendering problem on MacOS where rendering would start in bottom left
  * corner of screen and only fix once window was moved.
  */
-void fix_render_on_mac(GLFWwindow *window)
+inline void fix_render_on_mac(GLFWwindow *window)
 {
 #ifdef __APPLE__
     static bool macMoved = false;
