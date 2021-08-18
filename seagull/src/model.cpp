@@ -185,6 +185,8 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     std::vector<Texture> textures;
     if (mat->GetTextureCount(type) == 0)
     {
+        // Note: Need to figure out why this gets run through a ton of times after
+        // initial loading of textures. It shouldn't be doing that.
         std::cout << "HEY! No texture of type " << typeName << " found!" << std::endl;
 
         Texture texture;
