@@ -182,62 +182,62 @@ void UI::ShowSceneHeiarchy(bool *p_open)
          * information.
          */
 
-        // static SceneNode nodes[1024];
-        // int oldId = 1; // Last used ID by a node
-        // int oldObjectChildrenSize = (int)ResourceManager::SceneInfo.loaded_models.size();
-        // int nodeIndex = 1;
-        // SceneNode rootNode = {"Root", "--", -2, oldId, oldObjectChildrenSize};
-        // nodes[0] = rootNode;
+        static SceneNode nodes[1024];
+        int oldId = 1; // Last used ID by a node
+        int oldObjectChildrenSize = (int)ResourceManager::Models.size();
+        int nodeIndex = 1;
+        SceneNode rootNode = {"Root", "--", -2, oldId, oldObjectChildrenSize};
+        nodes[0] = rootNode;
 
-        // // Cycle through loaded_models and add them to the top of the scene_heiarchy
-        // for (int i = 0; i < (int)ResourceManager::SceneInfo.loaded_models.size(); i++)
-        // {
-            // int Id = oldId + oldObjectChildrenSize;
-            // int objectChildrenSize = 2; // Meshes and Textures are the only "children" of a model currently
-            // struct stat stat_buf;
-            // stat(ResourceManager::SceneInfo.loaded_models[i].path.c_str(), &stat_buf);
-            // SceneNode node = {ResourceManager::SceneInfo.loaded_models[i].name.c_str(), "Model", (int)stat_buf.st_size, Id, objectChildrenSize};
-            // nodes[nodeIndex] = node;
-            // oldId = Id;
-            // nodeIndex++;
-        // }
+        // Cycle through loaded_models and add them to the top of the scene_heiarchy
+        for (auto i = ResourceManager::Models.begin(); i != ResourceManager::Models.end(); i++)
+        {
+            int Id = oldId + oldObjectChildrenSize;
+            int objectChildrenSize = 2; // Meshes and Textures are the only "children" of a model currently
+            struct stat stat_buf;
+            stat(i->second.path.c_str(), &stat_buf);
+            SceneNode node = {i->first.c_str(), "Model", (int)stat_buf.st_size, Id, objectChildrenSize};
+            nodes[nodeIndex] = node;
+            oldId = Id;
+            nodeIndex++;
+        }
 
-        // // Add enough Mesh and Texture "parents/folder" for each model
-        // for (int i = 0; i < (int)ResourceManager::SceneInfo.loaded_models.size(); i++)
-        // {
-            // int meshId = oldId + oldObjectChildrenSize;
-            // SceneNode nodeMesh = {"Meshes", "Mesh", -2, meshId, (int)ResourceManager::SceneInfo.loaded_models[i].meshes.size()};
-            // nodes[nodeIndex] = nodeMesh;
-            // nodeIndex++;
+        // Add enough Mesh and Texture "parents/folder" for each model
+        for (auto i = ResourceManager::Models.begin(); i != ResourceManager::Models.end(); i++)
+        {
+            int meshId = oldId + oldObjectChildrenSize;
+            SceneNode nodeMesh = {"Meshes", "Mesh", -2, meshId, (int)i->second.meshes.size()};
+            nodes[nodeIndex] = nodeMesh;
+            nodeIndex++;
 
-            // int textureId = meshId + (int)ResourceManager::SceneInfo.loaded_models[i].meshes.size();
-            // SceneNode nodeTexture = {"Textures", "Texture", -2, textureId, (int)ResourceManager::SceneInfo.loaded_models[i].textures_loaded.size()};
-            // nodes[nodeIndex] = nodeTexture;
-            // nodeIndex++;
+            int textureId = meshId + (int)i->second.meshes.size();
+            SceneNode nodeTexture = {"Textures", "Texture", -2, textureId, (int)i->second.textures_loaded.size()};
+            nodes[nodeIndex] = nodeTexture;
+            nodeIndex++;
 
-            // oldId = textureId;
-            // oldObjectChildrenSize = (int)ResourceManager::SceneInfo.loaded_models[i].textures_loaded.size();
+            oldId = textureId;
+            oldObjectChildrenSize = (int)i->second.textures_loaded.size();
 
-        // }
+        }
 
-        // // Cycle through the models meshes and add them to the heiarchy.
-        // for (int i = 0; i < (int)ResourceManager::SceneInfo.loaded_models.size(); i++)
-        // {
-            // for (int j = 0; j < (int)ResourceManager::SceneInfo.loaded_models[i].meshes.size(); j++)
-            // {
-                // SceneNode node = {ResourceManager::SceneInfo.loaded_models[i].meshes[j].name.c_str(), "Mesh", -1, -1, -1};
-                // nodes[nodeIndex] = node;
-                // nodeIndex++;
-            // }
-            // for (int x = 0; x < (int)ResourceManager::SceneInfo.loaded_models[i].textures_loaded.size(); x++)
-            // {
-                // SceneNode node = {ResourceManager::SceneInfo.loaded_models[i].textures_loaded[x].name.c_str(), "Texture", -1, -1, -1};
-                // nodes[nodeIndex] = node;
-                // nodeIndex++;
-            // }
-        // }
+        // Cycle through the models meshes and add them to the heiarchy.
+        for (auto i = ResourceManager::Models.begin(); i != ResourceManager::Models.end(); i++)
+        {
+            for (auto j = i->second.meshes.begin(); j != i->second.meshes.end(); j++)
+            {
+                SceneNode node = {j->name.c_str(), "Mesh", -1, -1, -1};
+                nodes[nodeIndex] = node;
+                nodeIndex++;
+            }
+            for (auto x = i->second.textures_loaded.begin(); x != i->second.textures_loaded.end(); x++)
+            {
+                SceneNode node = {x->name.c_str(), "Texture", -1, -1, -1};
+                nodes[nodeIndex] = node;
+                nodeIndex++;
+            }
+        }
 
-        // SceneNode::DisplayNode(&nodes[0], nodes);
+        SceneNode::DisplayNode(&nodes[0], nodes);
 
         ImGui::EndTable();
     }
