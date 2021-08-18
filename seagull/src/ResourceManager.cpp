@@ -3,7 +3,7 @@
 
 std::map<std::string, Shader> ResourceManager::Shaders;
 std::map<std::string, Model> ResourceManager::Models;
-SceneData SceneInfo;
+// SceneData SceneInfo;
 
 Shader ResourceManager::LoadShader(std::string vShaderFile, std::string fShaderFile, std::string name)
 {

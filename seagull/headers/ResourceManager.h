@@ -10,16 +10,16 @@
 
 
 
-struct SceneData {
-    std::vector<Model> loaded_models;
-    // std::vector<Mesh> loaded_meshes;
-    // std::vector<Texture> loaded_textures;
-};
+// struct SceneData {
+    // std::vector<Model> loaded_models;
+    // // std::vector<Mesh> loaded_meshes;
+    // // std::vector<Texture> loaded_textures;
+// };
 
 class ResourceManager {
     public:
         // Temporary struct
-        static SceneData SceneInfo;
+        // static SceneData SceneInfo;
 
         static std::map<std::string, Model>  Models;
         static std::map<std::string, Shader> Shaders;
