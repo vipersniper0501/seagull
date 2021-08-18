@@ -18,7 +18,7 @@
 #include "Utils.h"
 #include "Seagull_Ui.h"
 #include "filesystem.h"
-#include "SceneManager.h"
+#include "ResourceManager.h"
 
 
 
@@ -59,6 +59,7 @@ namespace Seagull
             }
             virtual ~SeagullEngine() {}
 
+            virtual void Init() {}
             virtual void OnUpdate(float deltaTime) {}
             virtual void OnRender() {}
             virtual void OnImGuiRender() {}
