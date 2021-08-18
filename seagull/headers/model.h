@@ -25,11 +25,11 @@ class Model
         std::vector<Texture> textures_loaded;
         std::vector<Mesh> meshes;
         std::vector<aiLight> Lights;
+        unsigned int nrLights;
         std::string directory;
         std::string path;
         std::string FileType;
         std::string name;
-        unsigned int nrLights;
 
         Model() {}
 
@@ -39,6 +39,11 @@ class Model
         }
 
         void Draw(Shader &shader);
+        // Not implemented yet
+        //
+        // Will render the same object in multiple positions
+        // Useful for things such as lights.
+        void DrawInstanced(Shader &shader, glm::vec3 locations);
 
 
     private:

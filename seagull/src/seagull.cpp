@@ -185,12 +185,11 @@ int main(void)
     backpackShader.setMat4("ViewMatrix", ViewMatrix);
     backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
-    // Shader cityShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"));
-    // Model cityModel(FileSystem::getPath("seagull/tmp/ugly_city.fbx"));
-    // ResourceManager::SceneInfo.loaded_models.push_back(cityModel);
-    // cityShader.use();
-    // cityShader.setMat4("ViewMatrix", ViewMatrix);
-    // cityShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+    Shader CityShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "CityShader");
+    Model CityModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/ugly_city.fbx"), "CityModel");
+    CityShader.use();
+    CityShader.setMat4("ViewMatrix", ViewMatrix);
+    CityShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
     Shader lightCubeShader(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
     Mesh cubeMesh(Vertices, Indices, textures);

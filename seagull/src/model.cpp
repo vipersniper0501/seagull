@@ -187,6 +187,9 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
     {
         // Note: Need to figure out why this gets run through a ton of times after
         // initial loading of textures. It shouldn't be doing that.
+        //
+        // It could possibly be checking for textures for every single mesh in the backpack
+        // model.
         std::cout << "HEY! No texture of type " << typeName << " found!" << std::endl;
 
         Texture texture;

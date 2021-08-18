@@ -53,6 +53,8 @@ class Mesh {
          */
         void Draw(Shader &shader);
 
+        void DrawInstanced(Shader &shader, glm::vec3 locations);
+
         /*
          * Unbinds Buffers (sets them to the buffer location '0') and deletes them.
          */
