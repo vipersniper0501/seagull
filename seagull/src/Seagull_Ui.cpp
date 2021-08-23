@@ -1,6 +1,6 @@
 #include "Seagull_Ui.h"
 
-float UI::lampLocation[3] = {6.13f, 0.0f, 0.0f};
+float UI::lampLocation[3] = {2.13f, 0.0f, 0.0f};
 float UI::lampIntensity = 0.0f;
 
 void UI::init(GLFWwindow *window)
