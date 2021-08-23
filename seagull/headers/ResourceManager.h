@@ -30,6 +30,9 @@ class ResourceManager {
         static Model  LoadModel(std::string ModelFileLocation, std::string name);
         static Model  GetModel(std::string name);
 
+        static unsigned int GetNumberOfLights();
+        static std::vector<aiLight> GetLights();
+
     private:
         ResourceManager() {}
 
