@@ -27,7 +27,7 @@ int Seagull::SeagullEngine::CurrentHeight = 540;
 
 double previousTime;
 
-glm::vec3 lightPos;// = glm::vec3(-3.0f, 2.0f, -5.0f);
+glm::vec3 lightPos[64];
 
 UI seagullUi;
 Camera* Seagull::SeagullEngine::camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -109,16 +109,19 @@ class Game : Seagull::SeagullEngine
 
     private:
 
-        void updateLighting(Shader &shader, glm::vec3 lightPos)
+        void updateLighting(Shader &shader, glm::vec3 lightPos, Model model)
         {
-            shader.setVec3("lightPos", lightPos);
-            shader.setVec3("lighting.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-            shader.setVec3("lighting.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-            shader.setVec3("lighting.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+            for(unsigned int i = 0; i <= model.nrLights; i++)
+            {
+                shader.setVec3("lightPos", lightPos);
+                shader.setVec3("lighting[" + std::to_string(i) + "].ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+                shader.setVec3("lighting" + std::to_string(i) + ".diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+                shader.setVec3("lighting" + std::to_string(i) + ".specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-            shader.setFloat("lighting.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
-            shader.setFloat("lighting.linear", 0.045f);
-            shader.setFloat("lighting.quadratic", 0.0075f);
+                shader.setFloat("lighting" + std::to_string(i) + ".constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
+                shader.setFloat("lighting" + std::to_string(i) + ".linear", 0.045f);
+                shader.setFloat("lighting" + std::to_string(i) + ".quadratic", 0.0075f);
+            }
         }
 
 };
@@ -133,24 +136,27 @@ class Game : Seagull::SeagullEngine
 
 
 
+// LIghting works now, however it is having trouble dealing with two light sources and applying both affects.
+// Currently it just picks the last one in the array.
+// I think there is something wrong in the shader.
 
-
-
-
-
-
-void updateLighting(Shader &shader, glm::vec3 lightPos)
+void updateLighting(Shader &shader, glm::vec3 *lightPos, unsigned int nrLights)
 {
-    shader.setVec3("lightPos", lightPos);
-    shader.setVec3("lighting.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-    shader.setVec3("lighting.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-    shader.setVec3("lighting.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader.setInt("nrLights", nrLights);
+    for(unsigned int i = 0; i < nrLights; i++)
+    {
+        shader.setVec3("lightPos[" + std::to_string(i) + "]", lightPos[i]);
 
-    shader.setFloat("lighting.constant", seagullUi.lampIntensity); //light intensity (lower=brighter)
-    shader.setFloat("lighting.linear", 0.045f);
-    shader.setFloat("lighting.quadratic", 0.0075f);
+        shader.setVec3("lighting[" + std::to_string(i) + "].ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        shader.setVec3("lighting[" + std::to_string(i) + "].diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        shader.setVec3("lighting[" + std::to_string(i) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+        // attenuation
+        shader.setFloat("lighting[" + std::to_string(i) + "].constant", seagullUi.lampIntensity);
+        shader.setFloat("lighting[" + std::to_string(i) + "].linear", 0.045f);
+        shader.setFloat("lighting[" + std::to_string(i) + "].quadratic", 0.0075f);
+    }
 }
-
 
 int main(void)
 {
@@ -185,18 +191,37 @@ int main(void)
     backpackShader.setMat4("ViewMatrix", ViewMatrix);
     backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
-    Shader CityShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "CityShader");
-    Model CityModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/ugly_city.fbx"), "CityModel");
-    CityShader.use();
-    CityShader.setMat4("ViewMatrix", ViewMatrix);
-    CityShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+    //Shader CityShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "CityShader");
+    //Model CityModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/ugly_city.gltf"), "CityModel");
+    //CityShader.use();
+    //CityShader.setMat4("ViewMatrix", ViewMatrix);
+    //CityShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
     Shader lightCubeShader(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
+    Shader lightCubeShader2(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
+    Shader lightCubeShader3(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
+    Shader lightCubeShader4(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
+    Shader lightCubeShader5(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
+    Shader lightCubeShader6(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));
     Mesh cubeMesh(Vertices, Indices, textures);
     lightCubeShader.use();
     lightCubeShader.setMat4("ViewMatrix", ViewMatrix);
     lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
 
+
+    //unsigned int nrLights = ResourceManager::GetNumberOfLights();
+    std::vector<aiLight> lights = ResourceManager::GetLights();
+    lightPos[0] = glm::make_vec3(seagullUi.lampLocation);
+    for (unsigned int i = 0; i < lights.size(); i++)
+    {
+        // convert assimp light coordinates to glm vec3 coordinates
+        lightPos[i+1].x = lights[i].mPosition.x;
+        lightPos[i+1].y = lights[i].mPosition.y;
+        lightPos[i+1].z = lights[i].mPosition.z;
+        std::cout << "Light Position: Index " << std::to_string(i+1) << ": " << std::to_string(lightPos[i+1].x) <<
+                                                                        ", " << std::to_string(lightPos[i+1].y) <<
+                                                                        ", " << std::to_string(lightPos[i+1].z) << std::endl; 
+    }
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(seagull.window))
@@ -212,7 +237,7 @@ int main(void)
 
 
         // Update
-        lightPos = glm::make_vec3(seagullUi.lampLocation);
+        lightPos[0] = glm::make_vec3(seagullUi.lampLocation);
 
         backpackShader.use();
 
@@ -235,7 +260,7 @@ int main(void)
         backpackShader.setFloat("material.shininess", 64.0f);
         backpackShader.setVec3("viewPos", seagull.camera->Position);
 
-        updateLighting(backpackShader, lightPos);
+        updateLighting(backpackShader, lightPos, lights.size());
 
 
 
@@ -245,7 +270,6 @@ int main(void)
 
         ModelMatrix = glm::mat4(1.0f);
         ModelMatrix = glm::translate(ModelMatrix, glm::vec3(0.0f, -1.0f, -2.5f));
-        ModelMatrix = glm::scale(ModelMatrix, glm::vec3(100.0f, 100.0f, 100.0f));
 
         EyeballShader.setMat4("ViewMatrix", ViewMatrix);
         EyeballShader.setMat4("ProjectionMatrix", ProjectionMatrix);
@@ -254,10 +278,7 @@ int main(void)
         EyeballShader.setFloat("material.shininess", 64.0f);
         EyeballShader.setVec3("viewPos", seagull.camera->Position);
 
-        updateLighting(EyeballShader, lightPos);
-
-        // EyeballModel.Draw(EyeballShader);
-
+        updateLighting(EyeballShader, lightPos, lights.size());
 
 
         HelmetShader.use();
@@ -273,23 +294,77 @@ int main(void)
         HelmetShader.setFloat("material.shininess", 64.0f);
         HelmetShader.setVec3("viewPos", seagull.camera->Position);
 
-        updateLighting(HelmetShader, lightPos);
-
-        // HelmetModel.Draw(HelmetShader);
-
-
-        lightCubeShader.use();
-
-        ModelMatrix = glm::mat4(1.0f);
-        ModelMatrix = glm::translate(ModelMatrix, lightPos);
-        // ModelMatrix = glm::rotate(ModelMatrix, (float)glfwGetTime() * glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-        lightCubeShader.setMat4("ViewMatrix", ViewMatrix);
-        lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
-        lightCubeShader.setMat4("ModelMatrix", ModelMatrix);
+        updateLighting(HelmetShader, lightPos, lights.size());
 
 
 
+        //CityShader.use();
+
+        //ModelMatrix = glm::mat4(1.0f);
+        //ModelMatrix = glm::translate(ModelMatrix, glm::vec3(2.0f, -2.0f, 0.0f));
+        //ModelMatrix = glm::rotate(ModelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        //CityShader.setMat4("ViewMatrix", ViewMatrix);
+        //CityShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+        //CityShader.setMat4("ModelMatrix", ModelMatrix);
+
+        //CityShader.setFloat("material.shininess", 64.0f);
+        //CityShader.setVec3("viewPos", seagull.camera->Position);
+
+        //updateLighting(CityShader, lightPos, lights.size());
+
+
+
+
+
+         lightCubeShader.use();
+
+         ModelMatrix = glm::mat4(1.0f);
+         ModelMatrix = glm::translate(ModelMatrix, lightPos[0]);
+
+         lightCubeShader.setMat4("ViewMatrix", ViewMatrix);
+         lightCubeShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+         lightCubeShader.setMat4("ModelMatrix", ModelMatrix);
+
+
+         /*lightCubeShader2.use();
+         ModelMatrix = glm::mat4(1.0f);
+         ModelMatrix = glm::translate(ModelMatrix, lightPos[1]);
+         lightCubeShader2.setMat4("ViewMatrix", ViewMatrix);
+         lightCubeShader2.setMat4("ProjectionMatrix", ProjectionMatrix);
+         lightCubeShader2.setMat4("ModelMatrix", ModelMatrix);
+
+
+         lightCubeShader3.use();
+         ModelMatrix = glm::mat4(1.0f);
+         ModelMatrix = glm::translate(ModelMatrix, lightPos[2]);
+         lightCubeShader3.setMat4("ViewMatrix", ViewMatrix);
+         lightCubeShader3.setMat4("ProjectionMatrix", ProjectionMatrix);
+         lightCubeShader3.setMat4("ModelMatrix", ModelMatrix);
+
+
+         lightCubeShader4.use();
+         ModelMatrix = glm::mat4(1.0f);
+         ModelMatrix = glm::translate(ModelMatrix, lightPos[3]);
+         lightCubeShader4.setMat4("ViewMatrix", ViewMatrix);
+         lightCubeShader4.setMat4("ProjectionMatrix", ProjectionMatrix);
+         lightCubeShader4.setMat4("ModelMatrix", ModelMatrix);
+
+
+         lightCubeShader5.use();
+         ModelMatrix = glm::mat4(1.0f);
+         ModelMatrix = glm::translate(ModelMatrix, lightPos[4]);
+         lightCubeShader5.setMat4("ViewMatrix", ViewMatrix);
+         lightCubeShader5.setMat4("ProjectionMatrix", ProjectionMatrix);
+         lightCubeShader5.setMat4("ModelMatrix", ModelMatrix);
+
+
+         lightCubeShader6.use();
+         ModelMatrix = glm::mat4(1.0f);
+         ModelMatrix = glm::translate(ModelMatrix, lightPos[5]);
+         lightCubeShader6.setMat4("ViewMatrix", ViewMatrix);
+         lightCubeShader6.setMat4("ProjectionMatrix", ProjectionMatrix);
+         lightCubeShader6.setMat4("ModelMatrix", ModelMatrix);*/
 
 
 
@@ -300,7 +375,19 @@ int main(void)
         EyeballModel.Draw(EyeballShader);
         HelmetShader.use();
         HelmetModel.Draw(HelmetShader);
+       /*CityShader.use();
+        CityModel.Draw(CityShader);*/
         lightCubeShader.use();
+        cubeMesh.Draw(lightCubeShader);
+        lightCubeShader2.use();
+        cubeMesh.Draw(lightCubeShader);
+        lightCubeShader3.use();
+        cubeMesh.Draw(lightCubeShader);
+        lightCubeShader4.use();
+        cubeMesh.Draw(lightCubeShader);
+        lightCubeShader5.use();
+        cubeMesh.Draw(lightCubeShader);
+        lightCubeShader6.use();
         cubeMesh.Draw(lightCubeShader);
 
         seagullUi.NewFrame();
