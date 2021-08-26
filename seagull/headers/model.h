@@ -25,7 +25,7 @@ class Model
         std::vector<Texture> textures_loaded;
         std::vector<Mesh> meshes;
         std::vector<aiLight> Lights;
-        unsigned int nrLights;
+        unsigned int nrLights = 0;
         std::string directory;
         std::string path;
         std::string FileType;
@@ -56,7 +56,7 @@ class Model
          */
         void processNode(aiNode *node, const aiScene *scene);
 
-        Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+        Mesh processMesh(aiMesh *mesh, const aiScene *scene, glm::vec3 scaling);
 
         std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene *scene);
 

@@ -3,6 +3,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <cmath>
+
 void Model::Draw(Shader &shader)
 {
     for (unsigned int i = 0; i < meshes.size(); i++)
@@ -31,6 +33,34 @@ void Model::loadModel(std::string path)
     name = path.substr(path.find_last_of('/'), path.find_last_of('.'));
     std::cout << "Model Name: " << name.c_str() << std::endl;
 
+    if (scene->HasLights())
+    {
+        nrLights += scene->mNumLights;
+        for (unsigned int i = 0; i < scene->mNumLights; i++)
+        {
+            aiLight *light = scene->mLights[i];
+            /*
+                Okay, so it looks like the transformations/locations of where the lights are supposed
+                to be can be found in its corresponding node under the rootnode. when comparing the values to blender,
+                all values have their decimal shifted to the right 2 times in the fbx format
+                (looks fine for gltf).
+                It is probably best to have a proccessLights function to handle this in the processNode function.
+                simple if statement of if name == lightName found in lights. if so, process node as if it were a light
+                and retrieve transformation/locations.
+
+                found this information from the following link: https://github.com/assimp/assimp/issues/2381
+            */
+            if (FileType == ".gltf")
+            {
+                // This is a temporary fix
+                std::string name = light->mName.C_Str();
+                for (auto i = name.find("_Orientation"); i != std::string::npos; i = name.find("_Orientation"))
+                    name.erase(i, 12);
+                light->mName.Set(name.c_str());
+            }
+            Lights.push_back(*light);
+        }
+    }
     processNode(scene->mRootNode, scene);
 }
 
@@ -40,16 +70,50 @@ void Model::processNode(aiNode *node, const aiScene *scene)
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh, scene));
-    }
-    if (scene->HasLights())
-    {
-        // nrLights = scene->mNumLights;
-        for (unsigned int i = 0; i < scene->mNumLights; i++)
+        glm::vec3 s;
+        if (FileType == ".fbx")
         {
-            aiLight *light = scene->mLights[i];
-            Lights.push_back(*light);
+            s.x = node->mTransformation.a1 * std::pow(10, 2);
+            s.y = -(node->mTransformation.b2) * std::pow(10, 2);
+            s.z = node->mTransformation.c3 * std::pow(10, 2);
         }
+        else
+        {
+            s.x = node->mTransformation.a1;
+            s.y = node->mTransformation.b2;
+            s.z = node->mTransformation.c3;
+        }
+        if (round(s.x) == 0.0f)
+            s.x = 1.0;
+        if (round(s.y) == 0.0f)
+            s.y = 1.0;
+        if (round(s.z) == 0.0f)
+            s.z = 1.0;
+        meshes.push_back(processMesh(mesh, scene, s));
+    }
+    for (unsigned int i = 0; i < Lights.size(); i++)
+    {
+        // this can/should be optimized somehow.
+        std::cout << "Node name : " << node->mName.C_Str() << std::endl;
+        std::cout << "Light name : " << Lights[i].mName.C_Str() << std::endl;
+        if (node->mName == Lights[i].mName)
+        {
+            // This currently only works for FBX files. gltf is acting kinda weird
+            std::cout << "Node and Light name match !!!\n" << std::endl;
+            if (FileType == ".fbx")
+            {
+                Lights[i].mPosition.x = node->mTransformation.a4 * std::pow(10, -2);
+                Lights[i].mPosition.y = -(node->mTransformation.c4 * std::pow(10, -2));
+                Lights[i].mPosition.z = node->mTransformation.b4 * std::pow(10, -2);
+            }
+            else
+            {
+                Lights[i].mPosition.x = node->mTransformation.a4;
+                Lights[i].mPosition.y = -(node->mTransformation.c4);
+                Lights[i].mPosition.z = node->mTransformation.b4;
+            }
+        }
+
     }
     // then do the same for each of its children
     for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -59,7 +123,7 @@ void Model::processNode(aiNode *node, const aiScene *scene)
 }
 
 
-Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
+Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::vec3 scaling)
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -71,9 +135,9 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
         Vertex vertex;
         glm::vec3 vector;
         
-        vector.x = mesh->mVertices[i].x;
-        vector.y = mesh->mVertices[i].y;
-        vector.z = mesh->mVertices[i].z;
+        vector.x = mesh->mVertices[i].x * scaling.x;
+        vector.y = mesh->mVertices[i].y * scaling.y;
+        vector.z = mesh->mVertices[i].z * scaling.z;
 
         vertex.Position = vector;
 
