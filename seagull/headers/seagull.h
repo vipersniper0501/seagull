@@ -238,8 +238,4 @@ namespace Seagull
     };
 
 }
-GLFWwindow* InitGlfwWindow(void);
-void InitializeGL(GLFWwindow *window);
-void processKeypress(GLFWwindow *window, int key, int scancode, int action, int mods);
-void processInput(GLFWwindow* window);
 #endif
