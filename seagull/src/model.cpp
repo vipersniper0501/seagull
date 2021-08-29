@@ -1,12 +1,13 @@
 #include "model.h"
+#include "profiler.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
 #include <cmath>
 
 void Model::Draw(Shader &shader)
 {
+    SGL_PROFILE_FUNCTION();
     for (unsigned int i = 0; i < meshes.size(); i++)
     {
         meshes[i].Draw(shader);
@@ -15,6 +16,7 @@ void Model::Draw(Shader &shader)
 
 void Model::loadModel(std::string path)
 {
+    SGL_PROFILE_FUNCTION();
     Assimp::Importer import;
     const aiScene *scene = import.ReadFile(path, 
             aiProcess_Triangulate | 
@@ -66,6 +68,7 @@ void Model::loadModel(std::string path)
 
 void Model::processNode(aiNode *node, const aiScene *scene)
 {
+    SGL_PROFILE_FUNCTION();
     // process all the node's meshes (if any)
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
@@ -125,6 +128,7 @@ void Model::processNode(aiNode *node, const aiScene *scene)
 
 Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::vec3 scaling)
 {
+    SGL_PROFILE_FUNCTION();
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
@@ -246,6 +250,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::vec3 scaling)
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene *scene)
 {
+    SGL_PROFILE_FUNCTION();
     std::vector<Texture> textures;
     if (mat->GetTextureCount(type) == 0)
     {
@@ -306,6 +311,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureType 
 
 unsigned int Model::TextureFromFile(const char *path, const std::string &directory)
 {
+    SGL_PROFILE_FUNCTION();
     std::string filename = std::string(path);
     filename = directory + '/' + filename;
 
@@ -353,6 +359,7 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
 unsigned int Model::EmbeddedTextureFromFile(const aiTexture *embedded_texture)
 {
 
+    SGL_PROFILE_FUNCTION();
     unsigned int textureID;
     GLCall(glGenTextures(1, &textureID));
 
@@ -404,6 +411,7 @@ unsigned int Model::EmbeddedTextureFromFile(const aiTexture *embedded_texture)
 
 unsigned int Model::LoadDefaultTexture(GLubyte color)
 {
+    SGL_PROFILE_FUNCTION();
     unsigned int textureID;
     GLCall(glGenTextures(1, &textureID));
 

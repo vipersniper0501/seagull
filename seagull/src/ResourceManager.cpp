@@ -1,4 +1,5 @@
 #include "ResourceManager.h"
+#include "profiler.h"
 
 
 std::map<std::string, Shader> ResourceManager::Shaders;
@@ -6,6 +7,7 @@ std::map<std::string, Model> ResourceManager::Models;
 
 Shader ResourceManager::LoadShader(std::string vShaderFile, std::string fShaderFile, std::string name)
 {
+    SGL_PROFILE_FUNCTION();
     Shader shader_tmp(vShaderFile, fShaderFile);
     Shaders[name] = shader_tmp;
     return Shaders[name];
@@ -13,11 +15,13 @@ Shader ResourceManager::LoadShader(std::string vShaderFile, std::string fShaderF
 
 Shader ResourceManager::GetShader(std::string name)
 {
+    SGL_PROFILE_FUNCTION();
     return Shaders[name];
 }
 
 Model ResourceManager::LoadModel(std::string ModelFileLocation, std::string name)
 {
+    SGL_PROFILE_FUNCTION();
     Model model_tmp(ModelFileLocation);
     Models[name] = model_tmp;
     return Models[name];
@@ -25,11 +29,13 @@ Model ResourceManager::LoadModel(std::string ModelFileLocation, std::string name
 
 Model ResourceManager::GetModel(std::string name)
 {
+    SGL_PROFILE_FUNCTION();
     return Models[name];
 }
 
 unsigned int ResourceManager::GetNumberOfLights()
 {
+    SGL_PROFILE_FUNCTION();
     unsigned int lights = 0;
     for(auto i = Models.begin(); i != Models.end(); i++)
     {
@@ -40,6 +46,7 @@ unsigned int ResourceManager::GetNumberOfLights()
 
 std::vector<aiLight> ResourceManager::GetLights()
 {
+    SGL_PROFILE_FUNCTION();
     std::vector<aiLight> lights;
     for (auto i = Models.begin(); i != Models.end(); i++)
     {

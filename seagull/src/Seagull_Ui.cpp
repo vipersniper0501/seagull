@@ -1,10 +1,12 @@
 #include "Seagull_Ui.h"
+#include "profiler.h"
 
 float UI::lampLocation[3] = {2.13f, 0.0f, 0.0f};
 float UI::lampIntensity = 0.720f;
 
 void UI::init(GLFWwindow *window)
 {
+    SGL_PROFILE_FUNCTION();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -21,6 +23,7 @@ void UI::init(GLFWwindow *window)
 
 void UI::NewFrame()
 {
+    SGL_PROFILE_FUNCTION();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -28,12 +31,14 @@ void UI::NewFrame()
 
 void UI::RenderUi()
 {
+    SGL_PROFILE_FUNCTION();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void UI::Destroy()
 {
+    SGL_PROFILE_FUNCTION();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -41,6 +46,7 @@ void UI::Destroy()
 
 void UI::ShowMainMenuBar()
 {
+    SGL_PROFILE_FUNCTION();
 
     static bool live_stats = false;
     static bool lamp_config = false;
@@ -76,6 +82,7 @@ void UI::ShowMainMenuBar()
 
 void UI::ShowLiveStats(bool *p_open)
 {
+    SGL_PROFILE_FUNCTION();
     if(!ImGui::Begin("Debug Stats", p_open))
     {
         ImGui::End();
@@ -95,6 +102,7 @@ void UI::ShowLiveStats(bool *p_open)
 
 void UI::ShowLampConfiguration(bool *p_open)
 {
+    SGL_PROFILE_FUNCTION();
     if(!ImGui::Begin("Lamp Config", p_open))
     {
         ImGui::End();
@@ -109,6 +117,7 @@ void UI::ShowLampConfiguration(bool *p_open)
 
 void UI::ShowSceneHeiarchy(bool *p_open)
 {
+    SGL_PROFILE_FUNCTION();
     static float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
     // static float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
 

@@ -1,6 +1,8 @@
 #ifndef SEAGULL_HEADER_FILE
 #define SEAGULL_HEADER_FILE
 
+#include "profiler.h"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <time.h>
@@ -81,6 +83,7 @@ namespace Seagull
              */
             static void processKeypress(GLFWwindow *window, int key, int scancode, int action, int mods)
             {
+                SGL_PROFILE_FUNCTION();
                 if (action == GLFW_PRESS) {
                     switch (key) {
                         case GLFW_KEY_ESCAPE:
@@ -100,6 +103,7 @@ namespace Seagull
 
             void processInput(GLFWwindow *window)
             {
+                SGL_PROFILE_FUNCTION();
                 if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
                     camera->ProcessKeyboard(FORWARD, deltaTime);
                 if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -116,6 +120,7 @@ namespace Seagull
 
             static void mouse_callback(GLFWwindow* window, double xpos, double ypos)
             {
+                SGL_PROFILE_FUNCTION();
                 if (mouseControl)
                 {
                     if (firstMouse)
@@ -141,6 +146,7 @@ namespace Seagull
              */
             static void windowResizeCallbackFunc(GLFWwindow *window, int width, int height)
             {
+                SGL_PROFILE_FUNCTION();
                 CurrentWidth = width;
                 CurrentHeight = height;
                 GLCall(glViewport(0, 0, CurrentWidth, CurrentHeight));
@@ -153,6 +159,7 @@ namespace Seagull
              */
             static void GlfwErrorCallback(int error, const char *description)
             {
+                SGL_PROFILE_FUNCTION();
                 fprintf(stderr, "GLFW ERROR: [%d] %s\n", error, description);
             }
 
@@ -163,6 +170,7 @@ namespace Seagull
              */
             GLFWwindow *InitGLFWWindow(void)
             {
+                SGL_PROFILE_FUNCTION();
 
                 /* Initialize the library */
                 if (!glfwInit())
@@ -198,8 +206,8 @@ namespace Seagull
                 glfwSetKeyCallback(window, processKeypress);
                 glfwSetCursorPosCallback(window, mouse_callback);
 
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                glfwSetCursorPos(window, lastX, lastY);
+                //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                //glfwSetCursorPos(window, lastX, lastY);
 
                 previousTime = glfwGetTime();
                 return window;
@@ -208,9 +216,9 @@ namespace Seagull
             void InitializeGL(GLFWwindow *window)
             {
 
+                SGL_PROFILE_FUNCTION();
                 GLenum glewInitResult;
 
-                
 
                 glewExperimental = GL_TRUE;
                 glewInitResult = glewInit();

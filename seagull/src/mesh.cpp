@@ -1,7 +1,11 @@
 #include "mesh.h"
+#include "profiler.h"
+#include <cstring>
+
 
 void Mesh::Draw(Shader &shader)
 {
+    SGL_PROFILE_FUNCTION();
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
@@ -44,6 +48,7 @@ void Mesh::Draw(Shader &shader)
 
 void Mesh::Destroy()
 {
+    SGL_PROFILE_FUNCTION();
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
     GLCall(glDeleteBuffers(1, &VBO));
     
@@ -56,6 +61,7 @@ void Mesh::Destroy()
 
 void Mesh::SetupMesh()
 {
+    SGL_PROFILE_FUNCTION();
     GLCall(glGenVertexArrays(1, &VAO));
     GLCall(glGenBuffers(1, &VBO));
     GLCall(glGenBuffers(1, &EBO));
