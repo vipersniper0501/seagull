@@ -14,19 +14,21 @@ void Mesh::Draw(Shader &shader)
         // retrieve texture number (the N in diffuse_textureN)
         std::string number;
         std::string name = textures[i].type;
-        if (name == "texture_diffuse")
-            number = std::to_string(diffuseNr++);
-        else if (name == "texture_specular")
-            number = std::to_string(specularNr++);
-        else if (name == "texture_normal")
-            number = std::to_string(normalNr++);
-        else if (name == "texture_height")
-            number = std::to_string(heightNr++);
-        else if (name == "texture_ao")
-            number = std::to_string(aoNr++);
-        else if (name == "texture_emissive")
-            number = std::to_string(emissiveNr++);
 
+        const char *cname = textures[i].type.c_str();
+
+        if (std::strcmp(cname, "texture_diffuse") == 0)
+            number = std::to_string(diffuseNr++);
+        else if (std::strcmp(cname, "texture_specular") == 0)
+            number = std::to_string(specularNr++);
+        else if (std::strcmp(cname, "texture_normal") == 0)
+            number = std::to_string(normalNr++);
+        else if (std::strcmp(cname, "texture_height") == 0)
+            number = std::to_string(heightNr++);
+        else if (std::strcmp(cname, "texture_ao") == 0)
+            number = std::to_string(aoNr++);
+        else if (std::strcmp(cname, "texture_emissive") == 0)
+            number = std::to_string(emissiveNr++);
 
         shader.setInt(("material." + name + number).c_str(), i);
         GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].id));
