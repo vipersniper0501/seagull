@@ -76,7 +76,12 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/seagull/vendor/assimp/include/assimp
     ${CMAKE_SOURCE_DIR}/seagull/vendor/stbimage
     ${CMAKE_SOURCE_DIR}/seagull/vendor/imgui
-    ${CMAKE_SOURCE_DIR}/seagull/profiler/Optick_1.3.1/include)
+    )
+if (NOT MINGW)
+    include_directories(
+        ${CMAKE_SOURCE_DIR}/seagull/profiler/Optick_1.3.1/include
+        )
+endif()
 
 file(GLOB PROJECT_SOURCES "${CMAKE_SOURCE_DIR}/seagull/src/*.cpp")
 file(GLOB PROJECT_HEADERS "${CMAKE_SOURCE_DIR}/seagull/headers/*.h")
@@ -84,8 +89,8 @@ file(GLOB PROJECT_HEADERS "${CMAKE_SOURCE_DIR}/seagull/headers/*.h")
 file(GLOB VENDOR_IMGUI_S "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/*.cpp")
 file(GLOB VENDOR_IMGUI_H "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/*.h")
 
-# file(GLOB PROFILER_OPTICK_S "${CMAKE_SOURCE_DIR}/seagull/profiler/Optick_1.3.1/src/*")
-# file(GLOB PROFILER_OPTICK_H "${CMAKE_SOURCE_DIR}/seagull/profiler/Optick_1.3.1/headers/*")
+
+
 if(NOT MINGW)
     set(OPTICK_PROFILER_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/seagull/profiler/Optick_1.3.1/lib/x64/release/")
     find_library(OPTICK NAMES OptickCore PATHS ${OPTICK_PROFILER_LIBRARY_PATH})
@@ -95,14 +100,17 @@ if(NOT MINGW)
 endif()
 
 
+
 set(VENDOR_IMGUI_OPENGL_GLFW
     "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/backends/imgui_impl_glfw.h"
     "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/backends/imgui_impl_glfw.cpp"
     "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/backends/imgui_impl_opengl3.h"
     "${CMAKE_SOURCE_DIR}/seagull/vendor/imgui/backends/imgui_impl_opengl3.cpp")
 
+
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
-    ${VENDOR_IMGUI_S} ${VENDOR_IMGUI_H} ${VENDOR_IMGUI_OPENGL_GLFW})
+    ${VENDOR_IMGUI_S} ${VENDOR_IMGUI_H} ${VENDOR_IMGUI_OPENGL_GLFW}
+    )
 
 # Start linking libraries
 if (WIN32 AND ${CMAKE_BUILD_TYPE} STREQUAL "Debug" AND NOT MINGW)
@@ -150,7 +158,8 @@ if (WIN32 AND MINGW)
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/bin/glew32d.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimp.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/seagull/profiler/Optick_1.3.1/lib/x64/debug/OptickCore.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+                           # COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/seagull/profiler/Optick_1.3.1/lib/x64/debug/OptickCore.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           )
     else()
         message(STATUS "You are NOTTTT using Window 10 and Mingw in Debug mode!\n")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
