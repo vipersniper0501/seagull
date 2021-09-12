@@ -61,7 +61,7 @@ void Mesh::Destroy()
 
 void Mesh::SetupMesh()
 {
-    SGL_PROFILE_FUNCTION();
+    SGL_PROFILE_FUNCTION()
     GLCall(glGenVertexArrays(1, &VAO));
     GLCall(glGenBuffers(1, &VBO));
     GLCall(glGenBuffers(1, &EBO));
