@@ -171,10 +171,10 @@ int main(void)
 
     // Load Models and Shaders
     /*Shader EyeballShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "EyeballShader");
-    Model EyeballModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/Eyeball/Eyeball.gltf"), "EyeballModel");
+    Model EyeballModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/Eyeball/Eyeball.gltf"), "EyeballModel");*/
     Shader HelmetShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "HelmetShader");
     Model HelmetModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/helmet/DamagedHelmet.gltf"), "HelmetModel");
-    Shader backpackShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "backpackShader");
+    /*Shader backpackShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "backpackShader");
     Model backpackModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/backpack/backpack.obj"), "backpackModel");*/
     //Shader CityShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "CityShader");
     //Model CityModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/ugly_city.gltf"), "CityModel");
@@ -186,6 +186,7 @@ int main(void)
     Shader lightCubeShader6(FileSystem::getPath("seagull/tmp_shaders/lightCubeVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/lightCubeFragment.glsl"));*/
     Mesh cubeMesh(Vertices, Indices, textures);
 
+    Shader PhilShaderNormals = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/normalsVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/normalsFragment.glsl"), FileSystem::getPath("seagull/tmp_shaders/normalsGeometry.glsl"), "PhilShaderNormals");
     Shader PhilShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/defaultVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/defaultFragment.glsl"), "PhilShader");
     Model PhilModel = ResourceManager::LoadModel(FileSystem::getPath("seagull/tmp/Phil.gltf"), "PhilModel");
 
@@ -211,8 +212,8 @@ int main(void)
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(seagull.window))
     {
-        SGL_PROFILE_FUNCTION();
-        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+        SGL_PROFILE_MAIN();
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
         double currentFrame = glfwGetTime();
         seagull.deltaTime = currentFrame - seagull.lastFrame;
@@ -221,7 +222,9 @@ int main(void)
         seagull.ProcessInput();
 
         ViewMatrix = seagull.camera->GetViewMatrix();
+        ResourceManager::SaveMatrix(ViewMatrix, "ViewMatrix");
         ProjectionMatrix = glm::perspective(glm::radians(45.0f), (float)seagull.CurrentWidth/seagull.CurrentHeight, 0.1f, 100.0f);
+        ResourceManager::SaveMatrix(ProjectionMatrix, "ProjectionMatrix");
 
 
         // Update
@@ -235,6 +238,7 @@ int main(void)
         //backpackShader.setMat4("ProjectionMatrix", ProjectionMatrix);
         //backpackShader.setMat4("ModelMatrix", ModelMatrix);
         //// Backpack Model's lighting settings
+//#include "Tracy.hpp"
         //backpackShader.setFloat("material.shininess", 64.0f);
         //backpackShader.setVec3("viewPos", seagull.camera->Position);
         ////updateLighting(backpackShader, lightPos, lights.size());
@@ -255,17 +259,18 @@ int main(void)
         //updateLighting(EyeballShader, lightPos, 1);
 
 
-        //HelmetShader.use();
-        //ModelMatrix = glm::mat4(1.0f);
-        //ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2.0f, 1.0f, -3.0f));
-        //ModelMatrix = glm::rotate(ModelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        //HelmetShader.setMat4("ViewMatrix", ViewMatrix);
-        //HelmetShader.setMat4("ProjectionMatrix", ProjectionMatrix);
-        //HelmetShader.setMat4("ModelMatrix", ModelMatrix);
-        //HelmetShader.setFloat("material.shininess", 64.0f);
-        //HelmetShader.setVec3("viewPos", seagull.camera->Position);
-        ////updateLighting(HelmetShader, lightPos, lights.size());
-        //updateLighting(HelmetShader, lightPos, 1);
+        HelmetShader.use();
+        ModelMatrix = glm::mat4(1.0f);
+        ModelMatrix = glm::translate(ModelMatrix, glm::vec3(-2.0f, 1.0f, -3.0f));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        ResourceManager::SaveMatrix(ModelMatrix, HelmetModel.name);
+        HelmetShader.setMat4("ViewMatrix", ViewMatrix);
+        HelmetShader.setMat4("ProjectionMatrix", ProjectionMatrix);
+        HelmetShader.setMat4("ModelMatrix", ModelMatrix);
+        HelmetShader.setFloat("material.shininess", 64.0f);
+        HelmetShader.setVec3("viewPos", seagull.camera->Position);
+        //updateLighting(HelmetShader, lightPos, lights.size());
+        updateLighting(HelmetShader, lightPos, 1);
 
 
         //CityShader.use();
@@ -284,12 +289,14 @@ int main(void)
         PhilShader.use();
         ModelMatrix = glm::mat4(1.0f);
         ModelMatrix = glm::scale(ModelMatrix, glm::vec3(0.25, 0.25, 0.25));
+        ResourceManager::SaveMatrix(ModelMatrix, PhilModel.name);
         PhilShader.setMat4("ViewMatrix", ViewMatrix);
         PhilShader.setMat4("ProjectionMatrix", ProjectionMatrix);
         PhilShader.setMat4("ModelMatrix", ModelMatrix);
         PhilShader.setFloat("material.shininess", 64.0f);
         PhilShader.setVec3("viewPos", seagull.camera->Position);
         updateLighting(PhilShader, lightPos, 1);
+
 
         lightCubeShader.use();
         ModelMatrix = glm::mat4(1.0f);
@@ -344,9 +351,9 @@ int main(void)
        /* backpackShader.use();
         backpackModel.Draw(backpackShader);
         EyeballShader.use();
-        EyeballModel.Draw(EyeballShader);
+        EyeballModel.Draw(EyeballShader);*/
         HelmetShader.use();
-        HelmetModel.Draw(HelmetShader);*/
+        HelmetModel.Draw(HelmetShader);
        /*CityShader.use();
         CityModel.Draw(CityShader);*/
         lightCubeShader.use();
