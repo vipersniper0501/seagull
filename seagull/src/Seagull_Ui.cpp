@@ -264,12 +264,14 @@ void UI::ShowNormals(bool* p_open)
     unsigned int models_size = ResourceManager::Models.size();
     glm::mat4 PM = ResourceManager::LoadMatrix("ProjectionMatrix");
     glm::mat4 VM = ResourceManager::LoadMatrix("ViewMatrix");
-    for (auto model : ResourceManager::Models)
+    NormalsShader.use();
+    NormalsShader.setMat4("ViewMatrix", VM);
+    NormalsShader.setMat4("ProjectionMatrix", PM);
+    for (auto &model : ResourceManager::Models)
     {
-        NormalsShader.use();
-        NormalsShader.setMat4("ViewMatrix", VM);
-        NormalsShader.setMat4("ProjectionMatrix", PM);
         NormalsShader.setMat4("ModelMatrix", ResourceManager::LoadMatrix(model.second.name));
+        //TODO: need to find a way to instead of draw the entire mesh, ONLY draw the normal lines.
+        //      that way, it won't have to draw as many vertices.
         model.second.Draw(NormalsShader);
     }
 
