@@ -15,6 +15,10 @@
             #define SGL_PROFILE_FUNCTION() do {} while(0);
             #define SGL_PROF_THEAD(NAME) do {} while(0);
         #endif
+    #else
+        #define SGL_PROFILE_MAIN() do {} while(0);
+        #define SGL_PROFILE_FUNCTION() do {} while(0);
+        #define SGL_PROF_THEAD(NAME) do {} while(0);
     #endif
 #else
     #define SGL_PROFILE_MAIN() do {} while(0);
