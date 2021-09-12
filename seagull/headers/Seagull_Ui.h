@@ -47,6 +47,8 @@ class UI
 
         void ShowSceneHeiarchy(bool *p_open);
 
+        void ShowNormals(bool* p_open);
+
         void ExitApp();
 };
 
