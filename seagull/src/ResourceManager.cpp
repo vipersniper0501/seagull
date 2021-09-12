@@ -17,9 +17,16 @@ Shader ResourceManager::LoadShader(std::string vShaderFile, std::string fShaderF
 Shader ResourceManager::LoadShader(std::string vShaderFile, std::string fShaderFile, std::string gShaderFile, std::string name)
 {
     SGL_PROFILE_FUNCTION();
-    Shader shader_tmp(vShaderFile, fShaderFile, gShaderFile);
-    Shaders[name] = shader_tmp;
-    return Shaders[name];
+    if (Shaders.count(name) == 0)
+    {
+        Shader shader_tmp(vShaderFile, fShaderFile, gShaderFile);
+        Shaders[name] = shader_tmp;
+        return Shaders[name];
+    }
+    else
+    {
+        return Shaders[name];
+    }
 }
 
 Shader ResourceManager::GetShader(std::string name)
@@ -74,10 +81,12 @@ std::vector<aiLight> ResourceManager::GetLights()
 
 void ResourceManager::SaveMatrix(glm::mat4 matrix, std::string name)
 {
+    SGL_PROFILE_FUNCTION();
     Matrices[name] = matrix;
 }
 
 glm::mat4 ResourceManager::LoadMatrix(std::string name)
 {
+    SGL_PROFILE_FUNCTION();
     return Matrices[name];
 }
