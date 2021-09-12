@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "Utils.h"
+#include "profiler.h"
 
 #include <string>
 #include <fstream>
@@ -35,17 +36,27 @@ class Shader
 {
     public:
         unsigned int ID;
+        std::string vShaderFile;
+        std::string fShaderFile;
+        std::string gShaderFile;
         
         Shader() {}
-        Shader(std::string vertexPath, std::string fragmentPath)
+        Shader(std::string vertexPath, std::string fragmentPath, std::string geometryPath = "")
         {
+            SGL_PROFILE_FUNCTION();
+            this->vShaderFile = vertexPath;
+            this->fShaderFile = fragmentPath;
+            this->gShaderFile = geometryPath;
             std::string vertexCode;
             std::string fragmentCode;
+            std::string geometryCode;
             std::ifstream vShaderFile;
             std::ifstream fShaderFile;
+            std::ifstream gShaderFile;
 
             vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+            gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
             // reading and storing shader data from files
             try
@@ -60,6 +71,15 @@ class Shader
 
                 vertexCode = vShaderStream.str();
                 fragmentCode = fShaderStream.str();
+
+                if (geometryPath != "")
+                {
+                    gShaderFile.open(geometryPath);
+                    std::stringstream gShaderStream;
+                    gShaderStream << gShaderFile.rdbuf();
+                    gShaderFile.close();
+                    geometryCode = gShaderStream.str();
+                }
             }
             catch(std::ifstream::failure e)
             {
@@ -95,10 +115,31 @@ class Shader
                 std::cout << "\nFRAGMENT SHADER ERROR:\nFile: " << fragmentPath << "\nProblem: " << fmessage << std::endl;
             }
 
+            unsigned int geometry;
+            if (geometryPath != "")
+            {
+                const char* gShaderCode = geometryCode.c_str();
+                GLCall(geometry = glCreateShader(GL_GEOMETRY_SHADER));
+                GLCall(glShaderSource(geometry, 1, &gShaderCode, NULL));
+                GLCall(glCompileShader(geometry));
+
+                GLCall(glGetShaderiv(geometry, GL_COMPILE_STATUS, &shaderCompileStatus));
+                if (!shaderCompileStatus)
+                {
+                    GLchar fmessage[1024];
+                    GLCall(glGetShaderInfoLog(geometry, 1024, NULL, fmessage));
+                    std::cout << "\nGEOMETRY SHADER ERROR:\nFile: " << geometryPath << "\nProblem: " << fmessage << std::endl;
+                }
+            }
+
             // Create shader program
             GLCall(ID = glCreateProgram());
             GLCall(glAttachShader(ID, vertex));
             GLCall(glAttachShader(ID, fragment));
+            if (geometryPath != "")
+            {
+                GLCall(glAttachShader(ID, geometry));
+            }
             GLCall(glLinkProgram(ID));
 
             // check for linking errors
@@ -114,6 +155,10 @@ class Shader
             // longer needed.
             GLCall(glDeleteShader(vertex));
             GLCall(glDeleteShader(fragment));
+            if (geometryPath != "")
+            {
+                GLCall(glDeleteShader(geometry));
+            }
         }
 
         void Destroy();
