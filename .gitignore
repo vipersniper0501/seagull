@@ -2,6 +2,8 @@
 .cache/*
 .DS_Store
 .clangd/*
+lfs/*
+hooks/*
 Build/*
 !Build/.gitignore
 seagull/src/__pycache__
