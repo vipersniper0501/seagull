@@ -52,10 +52,12 @@ void UI::ShowMainMenuBar()
     static bool lamp_config = false;
     static bool scene_heiarchy = false;
     static bool exit_app = false;
+    static bool show_normals = false;
 
     if (live_stats)         ShowLiveStats(&live_stats);
     if (lamp_config)        ShowLampConfiguration(&lamp_config);
     if (scene_heiarchy)     ShowSceneHeiarchy(&scene_heiarchy);
+    if (show_normals)       ShowNormals(&show_normals);
     if (exit_app)           ExitApp();
 
     if(ImGui::BeginMainMenuBar())
@@ -73,6 +75,7 @@ void UI::ShowMainMenuBar()
             if (ImGui::MenuItem("Debug Stats", NULL, &live_stats)) {}
             if (ImGui::MenuItem("Lamp Config", NULL, &lamp_config)) {}
             if (ImGui::MenuItem("Scene Heiarchy", NULL, &scene_heiarchy)) {}
+            if (ImGui::MenuItem("Show Normals", NULL, &show_normals)) {}
             ImGui::EndMenu();
         }
 
@@ -252,6 +255,24 @@ void UI::ShowSceneHeiarchy(bool *p_open)
     }
 
     ImGui::End();
+}
+
+void UI::ShowNormals(bool* p_open)
+{
+    SGL_PROFILE_FUNCTION();
+    Shader NormalsShader = ResourceManager::LoadShader(FileSystem::getPath("seagull/tmp_shaders/normalsVertex.glsl"), FileSystem::getPath("seagull/tmp_shaders/normalsFragment.glsl"), FileSystem::getPath("seagull/tmp_shaders/normalsGeometry.glsl"), "NormalsShader");
+    unsigned int models_size = ResourceManager::Models.size();
+    glm::mat4 PM = ResourceManager::LoadMatrix("ProjectionMatrix");
+    glm::mat4 VM = ResourceManager::LoadMatrix("ViewMatrix");
+    for (auto model : ResourceManager::Models)
+    {
+        NormalsShader.use();
+        NormalsShader.setMat4("ViewMatrix", VM);
+        NormalsShader.setMat4("ProjectionMatrix", PM);
+        NormalsShader.setMat4("ModelMatrix", ResourceManager::LoadMatrix(model.second.name));
+        model.second.Draw(NormalsShader);
+    }
+
 }
 
 void UI::ExitApp()
