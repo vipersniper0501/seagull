@@ -156,9 +156,8 @@ if (WIN32 AND MINGW)
         message(STATUS "You are using Window 10 and Mingw in Debug mode!\n")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/bin/glew32d.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimp.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                           # COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/seagull/profiler/Optick_1.3.1/lib/x64/debug/OptickCore.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3d.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimpd.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
                            )
     else()
         message(STATUS "You are NOTTTT using Window 10 and Mingw in Debug mode!\n")
