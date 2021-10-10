@@ -245,5 +245,118 @@ namespace Seagull
 
     };
 
+
+    class Object {
+        glm::vec3 location = glm::vec3(1.0f);
+        glm::vec4 rotation = glm::vec4(1.0f);
+        glm::vec3 scale = glm::vec3(1.0f);
+
+        glm::mat4 ModelMatrix = glm::mat4(1.0f);
+
+        public:
+            Model model;
+            Shader shader;
+
+            void setLocation(glm::vec3 newLocation)
+            {
+                SGL_PROFILE_FUNCTION();
+                location = newLocation;
+                updateShader();
+            }
+
+            void setLocation(float x, float y, float z)
+            {
+                SGL_PROFILE_FUNCTION();
+                location = glm::vec3(x, y, z);
+                updateShader();
+            }
+
+            void setRotation(glm::vec4 newRotation)
+            {
+                SGL_PROFILE_FUNCTION();
+                rotation = newRotation;
+                updateShader();
+            }
+
+            void setRotation(float degree, float x, float y, float z)
+            {
+                SGL_PROFILE_FUNCTION();
+                rotation = glm::vec4(x, y, z, degree);
+                updateShader();
+            }
+
+            void setScale(glm::vec3 newScale)
+            {
+                SGL_PROFILE_FUNCTION();
+                scale = newScale;
+                updateShader();
+            }
+
+            void setScale(float x, float y, float z)
+            {
+                SGL_PROFILE_FUNCTION();
+                scale = glm::vec3(x, y, z);
+                updateShader();
+            }
+
+            glm::vec3 getLocation()
+            {
+                SGL_PROFILE_FUNCTION();
+                return location;
+            }
+
+            glm::vec4 getRotation()
+            {
+                SGL_PROFILE_FUNCTION();
+                return rotation;
+            }
+
+            glm::vec3 getScale()
+            {
+                SGL_PROFILE_FUNCTION();
+                return scale;
+            }
+
+            glm::mat4 getModelMatrix()
+            {
+                SGL_PROFILE_FUNCTION();
+                ModelMatrix = glm::mat4(1.0f);
+                ModelMatrix = glm::translate(ModelMatrix, location);
+                ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.w), glm::vec3(rotation.x, rotation.y, rotation.z));
+                ModelMatrix = glm::scale(ModelMatrix, scale);
+
+                return ModelMatrix;
+            }
+
+            // glm::mat4 getViewMatrix()
+            // {
+
+            // }
+
+            // glm::mat4 getProjectionMatrix()
+            // {
+
+            // }
+
+            /*
+             * Could use this with a map<> to store multiple shaders with an object
+             */
+            void setShader(Shader newShader)
+            {
+                SGL_PROFILE_FUNCTION();
+                shader = newShader;
+            }
+
+            void updateShader()
+            {
+                SGL_PROFILE_FUNCTION();
+                shader.use();
+                shader.setMat4("ModelMatrix", getModelMatrix());
+                shader.setMat4("ViewMatrix", ResourceManager::LoadMatrix("ViewMatrix"));
+                shader.setMat4("ProjectionMatrix", ResourceManager::LoadMatrix("ProjectionMatrix"));
+                shader.setVec3("viewPos", ResourceManager::LoadVec3("ViewPos"));
+            }
+    };
+
 }
 #endif
