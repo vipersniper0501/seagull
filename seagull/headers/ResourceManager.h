@@ -24,6 +24,7 @@ class ResourceManager {
         static std::map<std::string, Model>  Models;
         static std::map<std::string, Shader> Shaders;
         static std::map<std::string, glm::mat4> Matrices;
+        static std::map<std::string, glm::vec3> VecThrees;
 
         static Shader LoadShader(std::string vShaderFile, std::string fShaderFile, std::string name);
         static Shader LoadShader(std::string vShaderFile, std::string fShaderFile, std::string gShaderFile, std::string name);
@@ -37,6 +38,9 @@ class ResourceManager {
 
         static void SaveMatrix(glm::mat4 matrix, std::string name);
         static glm::mat4 LoadMatrix(std::string name);
+
+        static void SaveVec3(glm::vec3 vec3, std::string name);
+        static glm::vec3 LoadVec3(std::string name);
 
     private:
         ResourceManager() {}

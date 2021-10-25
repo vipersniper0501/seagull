@@ -5,6 +5,7 @@
 std::map<std::string, Shader> ResourceManager::Shaders;
 std::map<std::string, Model> ResourceManager::Models;
 std::map<std::string, glm::mat4> ResourceManager::Matrices;
+std::map<std::string, glm::vec3> ResourceManager::VecThrees;
 
 Shader ResourceManager::LoadShader(std::string vShaderFile, std::string fShaderFile, std::string name)
 {
@@ -89,4 +90,16 @@ glm::mat4 ResourceManager::LoadMatrix(std::string name)
 {
     SGL_PROFILE_FUNCTION();
     return Matrices[name];
+}
+
+void ResourceManager::SaveVec3(glm::vec3 vec3, std::string name)
+{
+    SGL_PROFILE_FUNCTION();
+    VecThrees[name] = vec3;
+}
+
+glm::vec3 ResourceManager::LoadVec3(std::string name)
+{
+    SGL_PROFILE_FUNCTION();
+    return VecThrees[name];
 }

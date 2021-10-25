@@ -38,6 +38,8 @@ void Mesh::Draw(Shader &shader)
         GLCall(glBindTexture(GL_TEXTURE_2D, textures[i].id));
     }
 
+    shader.setFloat("material.shininess", shinyLevel);
+
     // Draw Mesh
     GLCall(glBindVertexArray(VAO));
     GLCall(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0));

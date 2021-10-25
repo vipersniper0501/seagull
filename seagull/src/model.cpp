@@ -132,6 +132,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::vec3 scaling)
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
+    // float shinyLevel;
 
     // Vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -240,11 +241,17 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::vec3 scaling)
         std::vector<Texture> emissiveMaps = loadMaterialTextures(material, aiTextureType_EMISSIVE, "texture_emissive", scene);
         textures.insert(textures.end(), emissiveMaps.begin(), emissiveMaps.end());
 
+        // Get shiny level
+        // if (AI_SUCCESS != aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &shinyLevel))
+        // {
+            // shinyLevel = 64.0f;
+        // }
+
     }
 
     // std::cout << "New Mesh parsed w/ name: " << mesh->mName.C_Str() << std::endl;
 
-    return Mesh(vertices, indices, textures, (std::string)mesh->mName.C_Str());
+    return Mesh(vertices, indices, textures, shinyLevel, (std::string)mesh->mName.C_Str());
 }
 
 

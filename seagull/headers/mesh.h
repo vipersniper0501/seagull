@@ -35,15 +35,17 @@ class Mesh {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
+        float shinyLevel;
         unsigned int VAO;
         std::string name;
         glm::vec3 scale;
         
-        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, std::string name = "")
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, float shinyLevel, std::string name = "")
         {
             this->vertices = vertices;
             this->indices = indices;
             this->textures = textures;
+            this->shinyLevel = shinyLevel;
             this->name = name;
 
             SetupMesh();

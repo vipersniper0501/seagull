@@ -25,7 +25,7 @@ void GenerateLine(int index)
 void main(void)
 {
     GenerateLine(0);
-    GenerateLine(1);
-    GenerateLine(2);
+    // GenerateLine(1);
+    // GenerateLine(2);
 
 }
