@@ -162,9 +162,9 @@ if (WIN32 AND MINGW)
     else()
         message(STATUS "You are NOTTTT using Window 10 and Mingw in Debug mode!\n")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/bin/glew32.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimp.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+                           COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/bin/glew32.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/seagull/vendor/glfw/src/glfw3.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>
+                           COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_BINARY_DIR}/seagull/vendor/assimp/bin/libassimp.dll" $<TARGET_FILE_DIR:${PROJECT_NAME}>)
     endif()
 elseif(WIN32 AND MSVC_IDE)
     message(STATUS "HEY! I AM COPYING DLLS!")

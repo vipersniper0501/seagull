@@ -251,7 +251,8 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene, glm::vec3 scaling)
 
     // std::cout << "New Mesh parsed w/ name: " << mesh->mName.C_Str() << std::endl;
 
-    return Mesh(vertices, indices, textures, shinyLevel, (std::string)mesh->mName.C_Str());
+    // return Mesh(vertices, indices, textures, shinyLevel, (std::string)mesh->mName.C_Str());
+    return Mesh(vertices, indices, textures, 64.0f, (std::string)mesh->mName.C_Str());
 }
 
 

@@ -85,6 +85,7 @@ class Game : Seagull::SeagullEngine
         {
 
         }
+
         void OnUpdate(float deltaTime)
         {
 
